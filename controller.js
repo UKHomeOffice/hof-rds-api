@@ -4,9 +4,9 @@ const _ = require('lodash');
 const decodeEmail = email => email.includes('@') ? email : Buffer.from(email, 'hex').toString();
 
 module.exports = (app, props) => {
-  const { model, tableName, additionalQueries, selectableProps } = props;
+  const { modelName, tableName, additionalQueries, selectableProps } = props;
 
-  const Model = require(`./models/${model}`);
+  const Model = require(`./models/${modelName}`);
   const model = new Model(tableName, selectableProps);
 
   app.get(`/${tableName}`, (req, res, next) => {

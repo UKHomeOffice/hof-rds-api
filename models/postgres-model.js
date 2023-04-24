@@ -1,5 +1,5 @@
 
-const config = require('../../config');
+const config = require('../config');
 const knexfile = require(`../services/${config.serviceName}/knexfile.js`);
 const knexfileConfig = knexfile[process.env.NODE_ENV ? 'production' : 'development'];
 const knex = require('knex')(knexfileConfig);
@@ -47,4 +47,4 @@ module.exports = class PostgresModel {
       .returning(this.selectableProps)
       .timeout(this.requestTimeout);
   }
-}
+};

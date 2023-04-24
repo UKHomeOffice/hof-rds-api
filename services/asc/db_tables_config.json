@@ -1,7 +1,7 @@
 [
   {
     "tableName": "saved_applications",
-    "model": "postgres-model",
+    "modelName": "postgres-model",
     "additionalQueries": ["email"],
     "selectableProps": ["session"]
   }

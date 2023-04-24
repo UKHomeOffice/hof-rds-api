@@ -1,13 +1,12 @@
 'use strict';
 
-const config = require('../config');
+const config = require('./config');
 const Controller = require('./controller');
 const db = require('./db');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const json = require('morgan-json');
-const tableNames = config.tableNames;
 
 const format = json({
   short: ':method :url :status',
