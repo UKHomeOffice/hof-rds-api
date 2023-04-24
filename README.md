@@ -1,4 +1,4 @@
-# Save & Return API Service
+# HOF RDS API Service
 Provides a service layer to read, create and delete reports from a SQL table.
 
 **Reading:**  The main application will make a request to this save-return-api service.  This service will then connect to the database, get the data back and send it to the main application if it is successful
