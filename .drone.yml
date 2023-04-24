@@ -1,0 +1,202 @@
+---
+kind: pipeline
+name: default
+type: kubernetes
+
+environment:
+  IMAGE_URL: quay.io/ukhomeofficedigital
+  IMAGE_REPO: save-return-api
+  HOF_CONFIG: hof-services-config/Modern_Slavery_Nrm
+
+trigger:
+  branch:
+    - master
+
+steps:
+  - name: clone_repos
+    image: alpine/git
+    environment:
+      DRONE_GIT_USERNAME:
+        from_secret: drone_git_username
+      DRONE_GIT_TOKEN:
+        from_secret: drone_git_token
+    commands:
+      - git clone https://$${DRONE_GIT_USERNAME}:$${DRONE_GIT_TOKEN}@github.com/UKHomeOfficeForms/hof-services-config.git
+    when:
+      branch:
+        include:
+        - master
+      event: [push, pull_request]
+
+  - name: setup
+    pull: if-not-exists
+    image: node:lts
+    commands:
+      - yarn install --frozen-lockfile
+    when:
+      branch: master
+      event: [push, pull_request]
+
+  - name: linting
+    pull: if-not-exists
+    image: node:lts
+    commands:
+      - yarn run test:lint
+    when:
+      branch: master
+      event: [push, pull_request]
+
+  - name: build_image
+    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
+    commands:
+      - n=0; while [ "$n" -lt 60 ] && [ ! docker stats --no-stream ]; do n=$(( n + 1 )); sleep 1; done
+      - docker build --no-cache -t $${IMAGE_REPO}:$${DRONE_COMMIT_SHA} .
+    volumes:
+      - name: dockersock
+        path: /var/run
+    when:
+      branch: master
+      event: [push, pull_request]
+
+  - name: image_to_quay
+    pull: if-not-exists
+    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
+    environment:
+      DOCKER_PASSWORD:
+        from_secret: DOCKER_PASSWORD
+    commands:
+    - docker login -u="ukhomeofficedigital+modern_slavery_bot" -p=$${DOCKER_PASSWORD} quay.io
+    - docker tag $${IMAGE_REPO}:$${DRONE_COMMIT_SHA} $${IMAGE_URL}/$${IMAGE_REPO}:$${DRONE_COMMIT_SHA}
+    - docker push $${IMAGE_URL}/$${IMAGE_REPO}:$${DRONE_COMMIT_SHA}
+    when:
+      branch: master
+      event: [push, pull_request]
+
+  # Snyk & Anchore security scans which run after branch deployment to prevent blocking of PR UAT tests
+  - name: snyk_scan
+    pull: if-not-exists
+    image: node:lts
+    environment:
+      SNYK_TOKEN:
+        from_secret: snyk_token
+    commands:
+      - yarn run test:snyk
+    when:
+      branch:
+        include:
+          - master
+      event: pull_request
+
+  - name: anchore_scan
+    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission:latest
+    pull: always
+    environment:
+      IMAGE_NAME: save-return-api:${DRONE_COMMIT_SHA}
+      LOCAL_IMAGE: true
+      TOLERATE: medium
+      WHITELIST_FILE: hof-services-config/Modern_Slavery_Nrm/anchore-cve-exceptions.txt
+    when:
+      branch: master
+      event: pull_request
+
+  # CRON job steps that runs security scans using Snyk & Anchore
+  - name: cron_clone_repos
+    image: alpine/git
+    environment:
+      DRONE_GIT_USERNAME:
+        from_secret: drone_git_username
+      DRONE_GIT_TOKEN:
+        from_secret: drone_git_token
+    commands:
+      - git clone https://$${DRONE_GIT_USERNAME}:$${DRONE_GIT_TOKEN}@github.com/UKHomeOfficeForms/hof-services-config.git
+    when:
+      cron: security_scans
+      event: cron
+
+  - name: cron_build_image
+    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
+    commands:
+      - docker build --no-cache -t $${IMAGE_REPO}:$${DRONE_COMMIT_SHA} .
+    volumes:
+      - name: dockersock
+        path: /var/run
+    when:
+      cron: security_scans
+      event: cron
+
+  - name: cron_snyk_scan
+    pull: if-not-exists
+    image: node:lts
+    environment:
+      SNYK_TOKEN:
+        from_secret: snyk_token
+    commands:
+      - yarn install --frozen-lockfile
+      - yarn run test:snyk
+    when:
+      cron: security_scans
+      event: cron
+
+  - name: cron_anchore_scan
+    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission:latest
+    pull: always
+    environment:
+      IMAGE_NAME: save-return-api:${DRONE_COMMIT_SHA}
+      LOCAL_IMAGE: true
+      TOLERATE: medium
+      WHITELIST_FILE: hof-services-config/Modern_Slavery_Nrm/anchore-cve-exceptions.txt
+    when:
+      cron: security_scans
+      event: cron
+
+  # Slack notification upon a CRON job fail
+  - name: cron_notify_slack_tear_down_pr_envs
+    pull: if-not-exists
+    image: plugins/slack
+    settings:
+      channel: sas-build
+      failure: ignore
+      icon_url: http://readme.drone.io/0.5/logo_dark.svg
+      icon.url: http://readme.drone.io/0.5/logo_dark.svg
+      template: "CRON Job {{build.deployTo}} of NRM Alerts Service has {{build.status}} - <{{build.link}}|#{{build.number}}> {{#success build.status}}\n  :thumbsup: :thumbsup: :thumbsup:\n{{else}}\n  :x: :x: :x:\n{{/success}} Author: {{build.author}}\n\nDuration: {{since job.started}}\n\nJob: <{{build.link}}|#{{build.number}}>\n\nCommit: {{build.commit}}\n"
+      username: Drone
+      webhook:
+        from_secret: slack_webhook
+    when:
+      cron: tear_down_pr_envs
+      event: cron
+      status: failure
+
+  - name: cron_notify_slack_security_scans
+    pull: if-not-exists
+    image: plugins/slack
+    settings:
+      channel: sas-build
+      failure: ignore
+      icon_url: http://readme.drone.io/0.5/logo_dark.svg
+      icon.url: http://readme.drone.io/0.5/logo_dark.svg
+      template: "CRON Job {{build.deployTo}} of NRM Alerts Service has {{build.status}} - <{{build.link}}|#{{build.number}}> {{#success build.status}}\n  :thumbsup: :thumbsup: :thumbsup:\n{{else}}\n  :x: :x: :x:\n{{/success}} Author: {{build.author}}\n\nDuration: {{since job.started}}\n\nJob: <{{build.link}}|#{{build.number}}>\n\nCommit: {{build.commit}}\n"
+      username: Drone
+      webhook:
+        from_secret: slack_webhook
+    when:
+      cron: security_scans
+      event: cron
+      status: failure
+
+services:
+  - name: docker
+    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
+
+  # Anchore scanning needs background service to run
+  - name: anchore-submission-server
+    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission:latest
+    pull: always
+    commands:
+      - /run.sh server
+
+volumes:
+  - name: dockersock
+    temp: {}
+
+...
