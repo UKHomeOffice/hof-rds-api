@@ -11,7 +11,7 @@ const log = ({ action, migration }) =>
 
 async function migrate() {
   try {
-    return await knexMigrate('up', { to: knexfile.latestMigration }, log);
+    return await knexMigrate('up', { to: knexfile.latestMigration, knexfile }, log);
   } catch (e) {
     const migrationsAlreadyRun = e.message.includes('Migration is not pending');
 
@@ -24,7 +24,7 @@ async function migrate() {
 // fallback if you need to kubectl exec into running Docker container
 // and manually rollback a migration one at a time
 async function rollback() {
-  return await knexMigrate('down', {}, log);
+  return await knexMigrate('down', { knexfile }, log);
 }
 
 async function deleteOldData(table) {
