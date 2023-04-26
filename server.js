@@ -15,7 +15,7 @@ const format = json({
   timestamp: ':date[iso]'
 });
 
-const dbTablesConfig = require(`.services/${config.serviceName}/db_tables_config.json`);
+const dbTablesConfig = require(`./services/${config.serviceName}/db_tables_config.json`);
 
 const app = express();
 
