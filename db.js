@@ -37,7 +37,7 @@ async function rollback() {
 }
 
 async function deleteOldData(table) {
-  return await knex.raw(`select * from ${table} where date < dateadd(day, -${config.maxDataAge}, getdate())`);
+  return await knex.raw(`select * from ${table} where created_at < dateadd(day, -${config.maxDataAge}, getdate())`);
 }
 
 module.exports = {
