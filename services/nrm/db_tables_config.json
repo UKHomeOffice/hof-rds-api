@@ -1,0 +1,8 @@
+[
+  {
+    "tableName": "reports",
+    "modelName": "postgres-model",
+    "additionalQueries": ["email"],
+    "selectableProps": ["session"]
+  }
+]

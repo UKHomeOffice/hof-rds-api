@@ -36,12 +36,17 @@ async function rollback() {
   }, log);
 }
 
-async function deleteOldData(table) {
-  return await knex.raw(`select * from ${table} where created_at < dateadd(day, -${config.maxDataAge}, getdate())`);
+async function deleteOldTableData(table) {
+  return await knex.raw(`select * from ${table} where created_at < current_date - interval '${config.maxDataAge}' day`);
+}
+
+async function resetTable(table) {
+  return await knex(table).del();
 }
 
 module.exports = {
   migrate,
   rollback,
-  deleteOldData
+  deleteOldTableData,
+  resetTable
 };

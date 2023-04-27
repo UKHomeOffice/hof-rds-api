@@ -22,7 +22,7 @@ module.exports = (app, props) => {
       queryProps.email = decodeEmail(queryProps.email);
     }
 
-    if (!queryProps.length) {
+    if (!Object.keys(queryProps).length) {
       return res.send(404);
     }
 

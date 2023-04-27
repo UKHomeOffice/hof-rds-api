@@ -1,7 +1,7 @@
 'use strict';
 
 const config = require('./config');
-const Controller = require('./controller');
+const Router = require('./router');
 const db = require('./db');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -26,7 +26,7 @@ const setupDB = async expressApp => {
   await db.migrate();
 
   dbTablesConfig.forEach(table => {
-    return Controller(expressApp, table);
+    return Router(expressApp, table);
   });
 
   expressApp.listen(config.port);

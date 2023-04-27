@@ -2,7 +2,7 @@
 
 // eslint-disable-next-line func-names
 exports.up = function (knex) {
-  return knex.schema.createTable('reports', table => {
+  return knex.schema.createTable('saved_applications', table => {
     table.increments();
     table.string('email').notNullable();
     table.json('session').notNullable();
@@ -12,5 +12,5 @@ exports.up = function (knex) {
 
 // eslint-disable-next-line func-names
 exports.down = function (knex) {
-  return knex.schema.dropTable('reports');
+  return knex.schema.dropTable('saved_applications');
 };
