@@ -12,7 +12,8 @@ exports.up = function (knex) {
 exports.down = function (knex) {
   return knex
     .raw(`
-          DROP OWNED BY reports;
+          REVOKE INSERT ON reports FROM reports;
+          REVOKE SELECT ON reports FROM grafana;
           DROP USER reports;
       `);
 };

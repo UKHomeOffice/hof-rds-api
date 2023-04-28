@@ -19,11 +19,11 @@ exports.up = function (knex) {
 exports.down = function (knex) {
   return knex
     .raw(`
-            DROP OWNED BY hof;
-            DROP USER hof;
-            DROP OWNED BY resolver;
-            DROP USER resolver;
-            DROP OWNED BY grafana;
+            REVOKE SELECT ON resolver, hof FROM grafana;
             DROP USER grafana;
+            REVOKE INSERT ON resolver FROM resolver;
+            DROP USER resolver;
+            REVOKE INSERT ON hof FROM hof;
+            DROP USER hof;
         `);
 };
