@@ -21,8 +21,10 @@ exports.down = function (knex) {
     .raw(`
             REVOKE SELECT ON resolver, hof FROM grafana;
             DROP USER grafana;
+            REVOKE ALL ON SEQUENCE resolver_id_seq FROM resolver;
             REVOKE INSERT ON resolver FROM resolver;
             DROP USER resolver;
+            REVOKE ALL ON SEQUENCE hof_id_seq FROM hof;
             REVOKE INSERT ON hof FROM hof;
             DROP USER hof;
         `);

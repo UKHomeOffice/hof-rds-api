@@ -12,8 +12,9 @@ exports.up = function (knex) {
 exports.down = function (knex) {
   return knex
     .raw(`
-          REVOKE INSERT ON reports FROM reports;
           REVOKE SELECT ON reports FROM grafana;
+          REVOKE ALL ON SEQUENCE reports_id_seq FROM reports;
+          REVOKE INSERT ON reports FROM reports;
           DROP USER reports;
       `);
 };
