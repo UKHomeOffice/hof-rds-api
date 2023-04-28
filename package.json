@@ -12,6 +12,7 @@
     "db:setup": "yarn run db:migrate && yarn run db:seed",
     "db:test": "yarn run db:setup && yarn run db:rollback",
     "db:migrate": "node -e 'require(\"./db\").migrate()'",
+    "db:local:migrate": "node -r dotenv/config -e 'require(\"./db\").migrate()'",
     "db:rollback": "node -e 'require(\"./db\").rollback()'",
     "db:seed": "knex seed:run",
     "dev:db:migrate": "node -r dotenv/config -e 'require(\"./db\").migrate()' dotenv_config_path=.env-prod",
