@@ -1,7 +1,6 @@
 // Update with your config settings.
 
 module.exports = {
-  latestMigration: '20201002165609_user',
   development: {
     client: process.env.CLIENT || 'postgresql',
     connection: {

@@ -5,5 +5,6 @@ module.exports = {
   port: process.env.PORT || 3000,
   requestTimeout: 1000,
   maxDataAge: process.env.MAX_DATA_AGE,
-  serviceName: process.env.SERVICE_NAME
+  serviceName: process.env.SERVICE_NAME,
+  latestMigration: process.env.LATEST_MIGRATION
 };

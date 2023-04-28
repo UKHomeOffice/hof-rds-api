@@ -12,9 +12,12 @@ const log = ({ action, migration }) =>
   console.log('Doing ' + action + ' on ' + migration);
 
 async function migrate() {
+  if (!config.latestMigration) {
+    return console.log('No migration specified to upgrade to!');
+  }
   try {
     return await knexMigrate('up', {
-      to: knexfile.latestMigration,
+      to: config.latestMigration,
       knexfile: knexFileLocation,
       migrations: migrationsLocation
     }, log);
