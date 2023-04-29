@@ -27,25 +27,33 @@ module.exports = (app, props) => {
     }
 
     return model.get(queryProps)
-      .then(res.json)
+      .then(result => {
+        return res.json(result);
+      })
       .catch(next);
   });
 
   app.post(`/${tableName}`, (req, res, next) => {
     return model.create(req.body)
-      .then(res.json)
+      .then(result => {
+        return res.json(result);
+      })
       .catch(next);
   });
 
   app.patch(`/${tableName}/:id`, (req, res, next) => {
     return model.patch(req.params.id, req.body)
-      .then(res.json)
+      .then(result => {
+        return res.json(result);
+      })
       .catch(next);
   });
 
   app.delete(`/${tableName}/:id`, (req, res, next) => {
     return model.delete(req.params.id)
-      .then(res.sendStatus(200))
+      .then(() => {
+        return res.sendStatus(200);
+      })
       .catch(next);
   });
 };
