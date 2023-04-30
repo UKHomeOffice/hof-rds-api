@@ -2,7 +2,7 @@
 exports.up = function(knex) {
   return knex.schema.createTable('recruiters', table => {
     table.increments();
-    table.string('email').notNullable();
+    table.string('email').unique().notNullable();
     table.timestamps(true, true);
   });
 };
