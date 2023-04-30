@@ -3,11 +3,12 @@
     "tableName": "saved_applications",
     "modelName": "postgres-model",
     "additionalQueries": ["email"],
-    "selectableProps": ["session"]
+    "selectableProps": ["*"]
   },
   {
     "tableName": "recruiters",
     "modelName": "postgres-model",
-    "additionalQueries": ["email"]
+    "additionalQueries": ["email"],
+    "selectableProps": ["email"]
   }
 ]
