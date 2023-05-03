@@ -3,7 +3,8 @@
     "tableName": "saved_applications",
     "modelName": "postgres-model",
     "additionalQueries": ["email"],
-    "selectableProps": ["*"]
+    "selectableProps": ["*"],
+    "dataRetentionInDays": "7"
   },
   {
     "tableName": "recruiters",

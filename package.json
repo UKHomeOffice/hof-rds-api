@@ -13,6 +13,7 @@
     "db:test": "yarn run db:setup && yarn run db:rollback",
     "db:migrate": "node -e 'require(\"./db\").migrate()'",
     "db:local:migrate": "node -r dotenv/config -e 'require(\"./db\").migrate()'",
+    "db:local:delete": "node -r dotenv/config -e 'require(\"./db\").deleteOldTableData(`saved_applications`)'",
     "db:rollback": "node -e 'require(\"./db\").rollback()'",
     "db:seed": "knex seed:run",
     "dev:db:migrate": "node -r dotenv/config -e 'require(\"./db\").migrate()' dotenv_config_path=.env-prod",
@@ -30,7 +31,9 @@
     "lodash": "^4.17.21",
     "morgan": "^1.10.0",
     "morgan-json": "^1.1.0",
-    "pg": "^8.7.1"
+    "node-cron": "^3.0.2",
+    "pg": "^8.7.1",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "dotenv": "^16.0.3",

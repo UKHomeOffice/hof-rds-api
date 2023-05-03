@@ -7,6 +7,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const json = require('morgan-json');
+const cron = require('node-cron');
 
 const format = json({
   short: ':method :url :status',
@@ -29,7 +30,13 @@ const setupDB = async expressApp => {
     return Router(expressApp, table);
   });
 
+  await db.deleteOldTableData();
+
   expressApp.listen(config.port);
 };
 
 setupDB(app);
+
+cron.schedule('0 0 * * *', async () => {
+  db.deleteOldTableData();
+});
