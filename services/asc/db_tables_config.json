@@ -4,6 +4,7 @@
     "modelName": "postgres-model",
     "additionalQueries": ["email"],
     "selectableProps": ["*"],
+    "dataRetentionPeriodType": "business",
     "dataRetentionInDays": "7"
   },
   {

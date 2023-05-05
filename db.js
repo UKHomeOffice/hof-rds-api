@@ -51,9 +51,9 @@ async function rollback() {
   }, log);
 }
 
-function deleteQueryBuilder(table, time) {
+function deleteQueryBuilder(table, dataRetentionInDays, periodType) {
   // delete data older than max data age from start of today
-  return `DELETE FROM ${table} WHERE created_at < DATE_TRUNC('day', NOW()) - INTERVAL '${time} days'`;
+  return `DELETE FROM ${table} WHERE created_at < '${startOfDataRetentionPeriod(periodType, dataRetentionInDays)}'`;
 }
 
 async function updateBankHolidaySheet() {
@@ -65,30 +65,34 @@ async function updateBankHolidaySheet() {
   }
 }
 
-function addBusinessDays(createdAtDate, numDaysToAdd) {
-  let daysRemaining = numDaysToAdd;
+function startOfDataRetentionPeriod(type, days) {
+  let periodDays = days;
+  const typeIsCalendarDays = type === 'calendar';
+  const typeIsBusinessDays = type === 'business';
+  const processingDate = moment();
 
-  const newDate = moment(createdAtDate);
-  const newDateAsString = newDate.format('YYYY-MM-DD');
+  while (periodDays > 0) {
+    processingDate.subtract(1, 'days');
 
-  while (daysRemaining > 0) {
-    newDate.add(1, 'days');
+    const dateAsString = processingDate.format('YYYY-MM-DD');
+    const isBusinessDay = !isWeekend(processingDate.day()) && !isBankHoliday(dateAsString);
 
-    if (!isWeekend(newDate.day()) && !isBankHoliday(newDateAsString)) {
-      daysRemaining--;
+    if (typeIsCalendarDays || (typeIsBusinessDays && isBusinessDay)) {
+      periodDays--;
     }
   }
-
-  return newDateAsString;
+  return processingDate.format('YYYY-MM-DD');
 }
 
 function deleteOldTableData() {
   const tablesToClear = tableData.map(table => {
     return new Promise((resolve, reject) => {
       if (table.dataRetentionInDays) {
-        logger.log('info', `cleaning up ${table.tableName} table data older than ${table.dataRetentionInDays} days...`);
+        const periodType = table.dataRetentionPeriodType || 'calendar';
 
-        const query = deleteQueryBuilder(table.tableName, table.dataRetentionInDays);
+        logger.log('info', `cleaning up ${table.tableName} table data older than ${table.dataRetentionInDays} ${periodType} days...`);
+
+        const query = deleteQueryBuilder(table.tableName, table.dataRetentionInDays, periodType);
 
         return knex.raw(query)
           .then(resolve)
@@ -109,7 +113,7 @@ module.exports = {
   migrate,
   rollback,
   deleteOldTableData,
-  addBusinessDays,
+  startOfDataRetentionPeriod,
   updateBankHolidaySheet,
   resetTable
 };
