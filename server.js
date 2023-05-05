@@ -31,12 +31,13 @@ const setupDB = async expressApp => {
   });
 
   await db.deleteOldTableData();
+  await db.updateBankHolidaySheet();
 
   expressApp.listen(config.port);
 };
 
 setupDB(app);
-
-cron.schedule('0 0 * * *', async () => {
-  db.deleteOldTableData();
-});
+// run once a day at midnight
+cron.schedule('0 0 * * *', db.deleteOldTableData);
+// run once on the 1st of every month
+cron.schedule('0 0 1 * *', db.updateBankHolidaySheet);

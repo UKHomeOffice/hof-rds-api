@@ -2,6 +2,7 @@
 
 module.exports = {
   env: process.env.NODE_ENV,
+  bankHolidayApi: 'https://www.gov.uk/bank-holidays.json',
   maxPayloadSize: process.env.MAX_PAYLOAD_SIZE || '100kb',
   port: process.env.PORT || 3000,
   requestTimeout: 1000,
