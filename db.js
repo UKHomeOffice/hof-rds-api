@@ -17,7 +17,7 @@ const log = ({ action, migration }) =>
 const Sunday = 0;
 const Saturday = 6;
 const isWeekend = day => [Saturday, Sunday].includes(day);
-const englandBankHolidays = _.get(bankHolidays, `['england-and-wales'].events`, []).map(o => o.date);
+const englandBankHolidays = _.get(bankHolidays, '["england-and-wales"].events', []).map(o => o.date);
 const isBankHoliday = date => englandBankHolidays.includes(date);
 
 async function migrate() {
@@ -36,11 +36,6 @@ async function migrate() {
 // and manually rollback a migration one at a time
 async function rollback() {
   return await knexMigrate('rollback', log);
-}
-
-function deleteQueryBuilder(table, dataRetentionInDays, periodType) {
-  // delete data older than max data age from start of today
-  return `DELETE FROM ${table} WHERE created_at < '${startOfDataRetentionPeriod(periodType, dataRetentionInDays)}'`;
 }
 
 async function updateBankHolidaySheet() {
@@ -71,12 +66,17 @@ function startOfDataRetentionPeriod(type, days) {
   return processingDate.format('YYYY-MM-DD');
 }
 
+function deleteQueryBuilder(table, dataRetentionInDays, periodType) {
+  // delete data older than max data age from start of today
+  return `DELETE FROM ${table} WHERE created_at < '${startOfDataRetentionPeriod(periodType, dataRetentionInDays)}'`;
+}
+
 function deleteOldTableData() {
   const tablesToClear = tableData.map(table => {
     return new Promise((resolve, reject) => {
       if (table.dataRetentionInDays) {
         const periodType = table.dataRetentionPeriodType || 'calendar';
-
+        // eslint-disable-next-line max-len
         logger.log('info', `cleaning up ${table.tableName} table data older than ${table.dataRetentionInDays} ${periodType} days...`);
 
         const query = deleteQueryBuilder(table.tableName, table.dataRetentionInDays, periodType);

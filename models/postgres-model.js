@@ -1,6 +1,6 @@
 
 const config = require('../config');
-const knexfileConfig = require(`../knexfile.js`)[config.env];
+const knexfileConfig = require('../knexfile.js')[config.env];
 const knex = require('knex')(knexfileConfig);
 
 const DEFAULT_PROPS = [

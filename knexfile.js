@@ -18,7 +18,7 @@ const localConfig = {
     user: 'postgres',
     password: 'postgres'
   }
-}
+};
 
 const remoteConfig = {
   client: 'pg',

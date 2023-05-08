@@ -20,9 +20,9 @@ describe('ASC service - Standard router with postgres model', () => {
     // await db.rollback();
   });
 
-  describe('GET', (done) => {
+  describe('GET', () => {
     describe('/saved_applications', () => {
-      it('single entry by encoded email', (done) => {
+      it('single entry by encoded email', done => {
         const email = 'test@hotmail.com';
         supertest
           .get(`/saved_applications/email/${encodeEmail(email)}`)
@@ -38,7 +38,7 @@ describe('ASC service - Standard router with postgres model', () => {
           .end(done);
       });
 
-      it('multiple entries by encoded email', (done) => {
+      it('multiple entries by encoded email', done => {
         const email = 'test2@hotmail.com';
         supertest
           .get(`/saved_applications/email/${encodeEmail(email)}`)
@@ -54,7 +54,7 @@ describe('ASC service - Standard router with postgres model', () => {
           .end(done);
       });
 
-      it('single entry by ID', (done) => {
+      it('single entry by ID', done => {
         supertest
           .get('/saved_applications/2')
           .set('Accept', 'application/json')
@@ -72,7 +72,7 @@ describe('ASC service - Standard router with postgres model', () => {
     });
 
     describe('/recruiters', () => {
-      it('single entry by encoded email', (done) => {
+      it('single entry by encoded email', done => {
         const email = 'recruiter-test@digital.homeoffice.gov.uk';
         supertest
           .get(`/recruiters/email/${encodeEmail(email)}`)
@@ -88,7 +88,7 @@ describe('ASC service - Standard router with postgres model', () => {
     });
   });
 
-  describe('POST', (done) => {
+  describe('POST', () => {
     describe('/recruiters', () => {
       it('adds a record if request body is valid', async () => {
         const resBefore = await db.knex('recruiters').count();
@@ -100,7 +100,7 @@ describe('ASC service - Standard router with postgres model', () => {
             email: 'new-recruiter-test@hotmail.com'
           });
 
-        const resAfter= await db.knex('recruiters').count();
+        const resAfter = await db.knex('recruiters').count();
         const countAfter = +resAfter[0].count;
 
         expect(res.status).to.eql(200);
@@ -117,7 +117,7 @@ describe('ASC service - Standard router with postgres model', () => {
             email: 'recruiter-test@digital.homeoffice.gov.uk'
           });
 
-        const resAfter= await db.knex('recruiters').count();
+        const resAfter = await db.knex('recruiters').count();
         const countAfter = +resAfter[0].count;
 
         expect(res.status).to.eql(500);
@@ -125,7 +125,7 @@ describe('ASC service - Standard router with postgres model', () => {
       });
 
       describe('Bad Request Body', () => {
-        it('returns an error if the request body is empty', (done) => {
+        it('returns an error if the request body is empty', done => {
           supertest
             .post('/recruiters')
             .send({})
@@ -153,7 +153,7 @@ describe('ASC service - Standard router with postgres model', () => {
             applicant_id: '0000008'
           });
 
-        const resAfter= await db.knex('saved_applications').count();
+        const resAfter = await db.knex('saved_applications').count();
         const countAfter = +resAfter[0].count;
 
         expect(res.status).to.eql(200);
@@ -161,7 +161,7 @@ describe('ASC service - Standard router with postgres model', () => {
       });
 
       describe('Bad Request Body', () => {
-        it('returns an error if the request body is empty', (done) => {
+        it('returns an error if the request body is empty', done => {
           supertest
             .post('/saved_applications')
             .send({})
@@ -173,7 +173,7 @@ describe('ASC service - Standard router with postgres model', () => {
             .end(done);
         });
 
-        it('returns an error if the request body only has session data', (done) => {
+        it('returns an error if the request body only has session data', done => {
           supertest
             .post('/saved_applications')
             .send({
@@ -190,7 +190,7 @@ describe('ASC service - Standard router with postgres model', () => {
             .end(done);
         });
 
-        it('returns an error if the request body only has email and session', (done) => {
+        it('returns an error if the request body only has email and session', done => {
           supertest
             .post('/saved_applications')
             .send({
@@ -207,7 +207,7 @@ describe('ASC service - Standard router with postgres model', () => {
             .end(done);
         });
 
-        it('returns an error if the request body is missing recruiter ID', (done) => {
+        it('returns an error if the request body is missing recruiter ID', done => {
           supertest
             .post('/saved_applications')
             .send({
@@ -224,7 +224,7 @@ describe('ASC service - Standard router with postgres model', () => {
             .end(done);
         });
 
-        it('returns an error if the recruiter_id references an entry that doesn\'t exist', (done) => {
+        it('returns an error if the recruiter_id references an entry that doesn\'t exist', done => {
           supertest
             .post('/saved_applications')
             .send({
@@ -253,10 +253,10 @@ describe('ASC service - Standard router with postgres model', () => {
         const res = await supertest
           .patch('/recruiters/1')
           .send({
-            email: 'test@hotmail.com',
+            email: 'test@hotmail.com'
           });
 
-        const resAfter= await db.knex('recruiters').count();
+        const resAfter = await db.knex('recruiters').count();
         const countAfter = +resAfter[0].count;
 
         const getRes = await supertest.get('/recruiters/1');
@@ -276,10 +276,10 @@ describe('ASC service - Standard router with postgres model', () => {
         const res = await supertest
           .patch('/recruiters/1')
           .send({
-            email: 'recruiter-test2@digital.homeoffice.gov.uk',
+            email: 'recruiter-test2@digital.homeoffice.gov.uk'
           });
 
-        const resAfter= await db.knex('recruiters').count();
+        const resAfter = await db.knex('recruiters').count();
         const countAfter = +resAfter[0].count;
 
         const getRes = await supertest.get('/recruiters/1');
@@ -300,10 +300,10 @@ describe('ASC service - Standard router with postgres model', () => {
         const res = await supertest
           .patch('/saved_applications/1')
           .send({
-            session: '{ "new":"info"}',
+            session: '{ "new":"info"}'
           });
 
-        const resAfter= await db.knex('saved_applications').count();
+        const resAfter = await db.knex('saved_applications').count();
         const countAfter = +resAfter[0].count;
 
         const getRes = await supertest.get('/saved_applications/1');
@@ -326,7 +326,7 @@ describe('ASC service - Standard router with postgres model', () => {
 
         const res = await supertest.delete('/recruiters/3');
 
-        const resAfter= await db.knex('recruiters').count();
+        const resAfter = await db.knex('recruiters').count();
         const countAfter = +resAfter[0].count;
 
         const getRes = await supertest.get('/recruiters/3');
@@ -343,7 +343,7 @@ describe('ASC service - Standard router with postgres model', () => {
 
         const res = await supertest.delete('/recruiters/1');
 
-        const resAfter= await db.knex('recruiters').count();
+        const resAfter = await db.knex('recruiters').count();
         const countAfter = +resAfter[0].count;
 
         const getRes = await supertest.get('/recruiters/1');
@@ -361,7 +361,7 @@ describe('ASC service - Standard router with postgres model', () => {
 
         const res = await supertest.delete('/saved_applications/1');
 
-        const resAfter= await db.knex('saved_applications').count();
+        const resAfter = await db.knex('saved_applications').count();
         const countAfter = +resAfter[0].count;
 
         const getRes = await supertest.get('/saved_applications/1');

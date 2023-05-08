@@ -1,6 +1,4 @@
 
-const _ = require('lodash');
-
 const decodeEmail = email => email.includes('@') ? email : Buffer.from(email, 'hex').toString();
 
 module.exports = (app, props) => {
