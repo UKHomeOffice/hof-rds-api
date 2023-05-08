@@ -50,6 +50,7 @@ steps:
     image: node:lts
     environment:
       DB_HOST: postgres-db
+      SERVICE_NAME: asc
     commands:
       - sleep 15
       - yarn db:setup
