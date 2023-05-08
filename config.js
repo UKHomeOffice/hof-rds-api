@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  env: process.env.NODE_ENV,
+  env: process.env.NODE_ENV || 'local',
   bankHolidayApi: 'https://www.gov.uk/bank-holidays.json',
   maxPayloadSize: process.env.MAX_PAYLOAD_SIZE || '100kb',
   port: process.env.PORT || 3000,

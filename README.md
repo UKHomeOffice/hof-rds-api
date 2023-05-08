@@ -43,8 +43,8 @@ from that repo to setup your database.
 Setup a '.env' file for the service you want to test this against. For example:
 ```
 SERVICE_NAME=asc
-MAX_DATA_AGE=1
-LATEST_MIGRATION=20230428215725_saved_applications
+NODE_ENV=local
+LATEST_MIGRATION=20230428215725_saved_applications (optional - otherwise runs all migrations)
 ```
 Then run `npm run db:migrate:local` to update your local database with the relevant migrations for local testing.
 

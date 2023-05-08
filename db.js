@@ -4,13 +4,10 @@ const moment = require('moment');
 const axios = require('axios');
 const fs = require('fs');
 const _ = require('lodash');
-const knexFileLocation = `./services/${config.serviceName}/knexfile.js`;
-const migrationsLocation = `./services/${config.serviceName}/migrations`;
 const tableData = require(`./services/${config.serviceName}/db_tables_config.json`);
 const bankHolidays = require('./data/bank_holidays.json');
-const knexfile = require(knexFileLocation);
 const knexMigrate = require('knex-migrate');
-const knexfileConfig = knexfile[process.env.NODE_ENV ? 'production' : 'development'];
+const knexfileConfig = require('./knexfile')[config.env];
 const knex = require('knex')(knexfileConfig);
 const logger = require('./lib/logger')({ env: config.env });
 
@@ -24,15 +21,8 @@ const englandBankHolidays = _.get(bankHolidays, `['england-and-wales'].events`, 
 const isBankHoliday = date => englandBankHolidays.includes(date);
 
 async function migrate() {
-  if (!config.latestMigration) {
-    return logger.log('info', 'No migration specified to upgrade to!');
-  }
   try {
-    return await knexMigrate('up', {
-      to: config.latestMigration,
-      knexfile: knexFileLocation,
-      migrations: migrationsLocation
-    }, log);
+    return await knexMigrate('up', config.latestMigration ? { to: config.latestMigration } : {}, log);
   } catch (e) {
     const migrationsAlreadyRun = e.message.includes('Migration is not pending');
 
@@ -45,10 +35,7 @@ async function migrate() {
 // fallback if you need to kubectl exec into running Docker container
 // and manually rollback a migration one at a time
 async function rollback() {
-  return await knexMigrate('down', {
-    knexfile: knexFileLocation,
-    migrations: migrationsLocation
-  }, log);
+  return await knexMigrate('rollback', log);
 }
 
 function deleteQueryBuilder(table, dataRetentionInDays, periodType) {
@@ -110,6 +97,7 @@ async function resetTable(table) {
 }
 
 module.exports = {
+  knex,
   migrate,
   rollback,
   deleteOldTableData,

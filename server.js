@@ -41,3 +41,5 @@ setupDB(app);
 cron.schedule('0 0 * * *', db.deleteOldTableData);
 // run once on the 1st of every month
 cron.schedule('0 0 1 * *', db.updateBankHolidaySheet);
+
+module.exports = app;

@@ -1,7 +1,6 @@
 
 const config = require('../config');
-const knexfile = require(`../services/${config.serviceName}/knexfile.js`);
-const knexfileConfig = knexfile[process.env.NODE_ENV ? 'production' : 'development'];
+const knexfileConfig = require(`../knexfile.js`)[config.env];
 const knex = require('knex')(knexfileConfig);
 
 const DEFAULT_PROPS = [

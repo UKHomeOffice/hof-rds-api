@@ -46,6 +46,18 @@ steps:
       branch: master
       event: [push, pull_request]
 
+  - name: integration-tests
+    image: postgres:alpine
+    environment:
+      DB_HOST: postgres-db
+    commands:
+      - sleep 15
+      - yarn run db:setup
+      - yarn run test:db:integration
+    when:
+      branch: master
+      event: [push, pull_request]
+
   - name: build_image
     image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
     commands:
@@ -187,7 +199,12 @@ steps:
 services:
   - name: docker
     image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
-
+  - name: postgres-db
+    image: postgres:alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSEWORD: postgres
+      POSTGRES_DB: test
   # Anchore scanning needs background service to run
   - name: anchore-submission-server
     image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission:latest
