@@ -47,13 +47,13 @@ steps:
       event: [push, pull_request]
 
   - name: integration-tests
-    image: postgres:alpine
+    image: node:lts
     environment:
       DB_HOST: postgres-db
     commands:
       - sleep 15
-      - yarn run db:setup
-      - yarn run test:db:integration
+      - yarn db:setup
+      - yarn test:db:integration
     when:
       branch: master
       event: [push, pull_request]
