@@ -204,11 +204,9 @@ services:
   - name: postgres-db
     image: postgres
     environment:
-      POSTGRES_DB: test
-      POSTGRES_USER: postgres
-      POSTGRES_PASSEWORD: postgres
-    ports:
-    - "5432:5432"
+      - POSTGRES_DB=test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSEWORD=postgres
   # Anchore scanning needs background service to run
   - name: anchore-submission-server
     image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission:latest
