@@ -313,7 +313,7 @@ describe('ASC service - Standard router with postgres model', () => {
         expect(countBefore).to.eql(countAfter);
         expect(body.length).to.eql(1);
         expect(body[0].id).to.eql(1);
-        expect(body[0].session).to.eql('{ "new":"info"}');
+        expect(body[0].session).to.eql({ new: 'info' });
       });
     });
   });
