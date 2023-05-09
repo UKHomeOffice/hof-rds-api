@@ -110,7 +110,7 @@ describe('Database Manager', () => {
             dataRetentionInDays: '14'
           }
         ]
-      });
+      }).DatabaseManager;
 
       db = new DB(testConfig);
 
@@ -130,7 +130,7 @@ describe('Database Manager', () => {
             dataRetentionInDays: '14'
           }
         ]
-      });
+      }).DatabaseManager;
 
       db = new DB(testConfig);
 
@@ -149,7 +149,7 @@ describe('Database Manager', () => {
             dataRetentionInDays: '14'
           }
         ]
-      });
+      }).DatabaseManager;
 
       db = new DB(testConfig);
 
