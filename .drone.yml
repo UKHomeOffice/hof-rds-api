@@ -46,6 +46,14 @@ steps:
       branch: master
       event: [push, pull_request]
 
+  - name: unit-tests
+    image: node:lts
+    commands:
+      - yarn test:unit
+    when:
+      branch: master
+      event: [push, pull_request]
+
   - name: integration-tests
     image: node:lts
     environment:
