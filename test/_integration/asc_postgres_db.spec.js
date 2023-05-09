@@ -1,6 +1,6 @@
 'use strict';
 
-const DB = require('../../db');
+const DB = require('../../db').DatabaseManager;
 const api = require('../../server');
 
 const supertest = require('supertest')(api);

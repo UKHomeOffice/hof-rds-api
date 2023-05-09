@@ -5,7 +5,7 @@ const axios = require('axios');
 const fs = require('fs');
 const _ = require('lodash');
 const knexMigrate = require('knex-migrate');
-const knex = require('knex');
+const knex = require('knex')(require('./knexfile')[config.env]);
 const logger = require('./lib/logger')({ env: config.env });
 
 const Sunday = 0;
@@ -17,9 +17,8 @@ const DATE_FORMAT = 'YYYY-MM-DD';
 const log = ({ action, migration }) =>
   logger.log('info', 'Doing ' + action + ' on ' + migration);
 
-module.exports = class DatabaseManager {
+exports.DatabaseManager = class DatabaseManager {
   constructor(conf) {
-    this.knex = knex(require('./knexfile')[conf.env]);
     this.bankHolidayApi = conf.bankHolidayApi;
     this.tableData = require(`./services/${conf.serviceName}/db_tables_config.json`);
     this.latestMigration = conf.latestMigration;
@@ -72,7 +71,7 @@ module.exports = class DatabaseManager {
 
     const query = this.#deleteQueryBuilder(table.tableName, table.dataRetentionInDays, periodType);
 
-    return this.knex.raw(query);
+    return knex.raw(query);
   }
 
   #deleteQueryBuilder(table, dataRetentionInDays, periodType) {
@@ -113,4 +112,14 @@ module.exports = class DatabaseManager {
     const englandBankHolidays = _.get(bankHolidays, `['${BANK_HOLIDAYS_COUNTRY}'].events`, []).map(o => o.date);
     return englandBankHolidays.includes(date);
   }
+};
+
+exports.migrate = async () => {
+  const db = new exports.DatabaseManager(config);
+  await db.migrate();
+};
+
+exports.rollback = async () => {
+  const db = new exports.DatabaseManager(config);
+  await db.rollback();
 };

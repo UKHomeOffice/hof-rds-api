@@ -52,7 +52,7 @@ describe('Database Manager', () => {
           tableName: 'recruiters'
         }
       ]
-    });
+    }).DatabaseManager;
 
     db = new DB(testConfig);
   });

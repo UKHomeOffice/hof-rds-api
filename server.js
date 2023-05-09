@@ -2,7 +2,7 @@
 
 const config = require('./config');
 const Router = require('./router');
-const DB = require('./db');
+const DB = require('./db').DatabaseManager;
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
