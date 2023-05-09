@@ -16,7 +16,7 @@ describe('ASC service - Standard router with postgres model', () => {
       bankHolidayApi: 'https://www.gov.uk/bank-holidays.json',
       serviceName: 'asc'
     });
-    
+
     await db.rollback();
     await db.migrate();
     await db.knex.seed.run();
