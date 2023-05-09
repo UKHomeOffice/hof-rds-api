@@ -1,11 +1,12 @@
 
+const config = require('./config');
 const moment = require('moment');
 const axios = require('axios');
 const fs = require('fs');
 const _ = require('lodash');
 const knexMigrate = require('knex-migrate');
 const knex = require('knex');
-const logger = require('./lib/logger');
+const logger = require('./lib/logger')({ env: config.env });
 
 const Sunday = 0;
 const Saturday = 6;
@@ -13,9 +14,11 @@ const BANK_HOLIDAYS_DATA_PATH = './data/bank_holidays.json';
 const BANK_HOLIDAYS_COUNTRY = 'england-and-wales';
 const DATE_FORMAT = 'YYYY-MM-DD';
 
+const log = ({ action, migration }) =>
+  logger.log('info', 'Doing ' + action + ' on ' + migration);
+
 module.exports = class DatabaseManager {
   constructor(conf) {
-    this.logger = logger({ env: conf.env });
     this.knex = knex(require('./knexfile')[conf.env]);
     this.bankHolidayApi = conf.bankHolidayApi;
     this.tableData = require(`./services/${conf.serviceName}/db_tables_config.json`);
@@ -37,7 +40,7 @@ module.exports = class DatabaseManager {
 
   async migrate() {
     try {
-      return await knexMigrate('up', this.latestMigration ? { to: this.latestMigration } : {}, this.#log);
+      return await knexMigrate('up', this.latestMigration ? { to: this.latestMigration } : {}, log);
     } catch (e) {
       const migrationsAlreadyRun = e.message.includes('Migration is not pending');
 
@@ -49,7 +52,7 @@ module.exports = class DatabaseManager {
   }
 
   async rollback() {
-    return await knexMigrate('rollback', this.#log);
+    return await knexMigrate('rollback', log);
   }
 
   async updateBankHolidaySheet() {
@@ -103,10 +106,6 @@ module.exports = class DatabaseManager {
 
   #isWeekend(day) {
     return [Saturday, Sunday].includes(day);
-  }
-
-  #log(action, migrate) {
-    return this.logger.log('info', 'Doing ' + action + ' on ' + migrate);
   }
 
   #isBankHoliday(date) {

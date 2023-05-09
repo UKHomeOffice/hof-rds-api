@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('../../db');
+const DB = require('../../db');
 const api = require('../../server');
 
 const supertest = require('supertest')(api);
@@ -8,7 +8,15 @@ const supertest = require('supertest')(api);
 const encodeEmail = email => Buffer.from(email).toString('hex');
 
 describe('ASC service - Standard router with postgres model', () => {
+  let db;
+
   beforeEach(async () => {
+    db = new DB({
+      env: 'test',
+      bankHolidayApi: 'https://www.gov.uk/bank-holidays.json',
+      serviceName: 'asc'
+    });
+    
     await db.rollback();
     await db.migrate();
     await db.knex.seed.run();

@@ -2,7 +2,7 @@
 
 const config = require('./config');
 const Router = require('./router');
-const db = require('./db');
+const DB = require('./db');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
@@ -17,6 +17,8 @@ const format = json({
 });
 
 const dbTablesConfig = require(`./services/${config.serviceName}/db_tables_config.json`);
+
+const db = new DB(config);
 
 const app = express();
 
