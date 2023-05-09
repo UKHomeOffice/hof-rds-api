@@ -47,7 +47,7 @@ module.exports = class DatabaseManager {
       if (!migrationsAlreadyRun) {
         throw e;
       }
-      return this.logger.log('info', 'Migrations have already run!');
+      return logger.log('info', 'Migrations have already run!');
     }
   }
 
@@ -60,7 +60,7 @@ module.exports = class DatabaseManager {
       const response = await axios.get(this.bankHolidayApi, { responseType: 'stream' });
       response.data.pipe(fs.createWriteStream(BANK_HOLIDAYS_DATA_PATH));
     } catch(e) {
-      this.logger.log('error', e);
+      logger.log('error', e);
     }
   }
 
@@ -68,7 +68,7 @@ module.exports = class DatabaseManager {
   #clearTable(table) {
     const periodType = table.dataRetentionPeriodType || 'calendar';
     // eslint-disable-next-line max-len
-    this.logger.log('info', `cleaning up ${table.tableName} table data older than ${table.dataRetentionInDays} ${periodType} days...`);
+    logger.log('info', `cleaning up ${table.tableName} table data older than ${table.dataRetentionInDays} ${periodType} days...`);
 
     const query = this.#deleteQueryBuilder(table.tableName, table.dataRetentionInDays, periodType);
 
