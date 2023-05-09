@@ -1,0 +1,8 @@
+[
+  {
+    "tableName": "saved_applications",
+    "modelName": "postgres-model",
+    "additionalGetResources": ["email"],
+    "selectableProps": ["session"]
+  }
+]
