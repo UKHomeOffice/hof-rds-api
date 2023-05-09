@@ -19,6 +19,7 @@ const log = ({ action, migration }) =>
 
 exports.DatabaseManager = class DatabaseManager {
   constructor(conf) {
+    this.knex = knex;
     this.bankHolidayApi = conf.bankHolidayApi;
     this.tableData = require(`./services/${conf.serviceName}/db_tables_config.json`);
     this.latestMigration = conf.latestMigration;
@@ -71,7 +72,7 @@ exports.DatabaseManager = class DatabaseManager {
 
     const query = this.#deleteQueryBuilder(table.tableName, table.dataRetentionInDays, periodType);
 
-    return knex.raw(query);
+    return this.knex.raw(query);
   }
 
   #deleteQueryBuilder(table, dataRetentionInDays, periodType) {
