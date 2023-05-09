@@ -96,8 +96,9 @@ describe('ASC service - Standard router with postgres model', () => {
 
         const res = await supertest
           .post('/recruiters')
-          .send('email=new-recruiter-test@hotmail.com')
-          .set('Accept', 'application/json');
+          .send({
+            email: 'new-recruiter-test@hotmail.com'
+          });
 
         const resAfter = await db.knex('recruiters').count();
         const countAfter = +resAfter[0].count;

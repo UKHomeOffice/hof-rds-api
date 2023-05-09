@@ -7,9 +7,9 @@ exports.seed = function (knex) {
     .then(function () {
       // Inserts seed entries
       return knex('recruiters').insert([
-        {id: 1, email: 'recruiter-test@digital.homeoffice.gov.uk'},
-        {id: 2, email: 'recruiter-test2@digital.homeoffice.gov.uk'},
-        {id: 3, email: 'recruiter-test3@digital.homeoffice.gov.uk'}
+        {email: 'recruiter-test@digital.homeoffice.gov.uk'},
+        {email: 'recruiter-test2@digital.homeoffice.gov.uk'},
+        {email: 'recruiter-test3@digital.homeoffice.gov.uk'}
       ]);
     });
 };
