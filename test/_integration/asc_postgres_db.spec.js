@@ -1,7 +1,5 @@
 'use strict';
 
-// process.env.SERVICE_NAME = 'asc';
-
 const db = require('../../db');
 const api = require('../../server');
 

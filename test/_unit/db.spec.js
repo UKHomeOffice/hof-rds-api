@@ -25,7 +25,7 @@ describe('Database Manager', () => {
 
     knexRawQueryStub.resolves('Deleted!');
 
-    DB = proxyquire('../new_db', {
+    DB = proxyquire('../db', {
       // allows us to check config is stable for api and stream calls for bank holiday data
       axios: {
         get: sinon.stub()
@@ -100,7 +100,7 @@ describe('Database Manager', () => {
     });
 
     it('deletes data using a dynamic data rentention window based on business days', async () => {
-      DB = proxyquire('../new_db', {
+      DB = proxyquire('../db', {
         moment: () => moment('2023-05-09'),
         knex: sinon.stub().withArgs(knexfileConfig).returns({ raw: knexRawQueryStub }),
         './services/asc/db_tables_config.json': [
@@ -120,7 +120,7 @@ describe('Database Manager', () => {
     });
 
     it('deletes data using a dynamic data rentention window based on calendar days', async () => {
-      DB = proxyquire('../new_db', {
+      DB = proxyquire('../db', {
         moment: () => moment('2023-05-09'),
         knex: sinon.stub().withArgs(knexfileConfig).returns({ raw: knexRawQueryStub }),
         './services/asc/db_tables_config.json': [
@@ -140,7 +140,7 @@ describe('Database Manager', () => {
     });
 
     it('deletes data based on calendar days if data retention period type is not set', async () => {
-      DB = proxyquire('../new_db', {
+      DB = proxyquire('../db', {
         moment: () => moment('2023-05-09'),
         knex: sinon.stub().withArgs(knexfileConfig).returns({ raw: knexRawQueryStub }),
         './services/asc/db_tables_config.json': [

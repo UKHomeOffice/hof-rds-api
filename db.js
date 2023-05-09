@@ -1,107 +1,117 @@
 
-const config = require('./config');
 const moment = require('moment');
 const axios = require('axios');
 const fs = require('fs');
 const _ = require('lodash');
-const tableData = require(`./services/${config.serviceName}/db_tables_config.json`);
-const bankHolidays = require('./data/bank_holidays.json');
 const knexMigrate = require('knex-migrate');
-const knexfileConfig = require('./knexfile')[config.env];
-const knex = require('knex')(knexfileConfig);
-const logger = require('./lib/logger')({ env: config.env });
-
-const log = ({ action, migration }) =>
-  logger.log('info', 'Doing ' + action + ' on ' + migration);
+const knex = require('knex');
+const logger = require('./lib/logger');
 
 const Sunday = 0;
 const Saturday = 6;
-const isWeekend = day => [Saturday, Sunday].includes(day);
-const englandBankHolidays = _.get(bankHolidays, '["england-and-wales"].events', []).map(o => o.date);
-const isBankHoliday = date => englandBankHolidays.includes(date);
+const BANK_HOLIDAYS_DATA_PATH = './data/bank_holidays.json';
+const BANK_HOLIDAYS_COUNTRY = 'england-and-wales';
+const DATE_FORMAT = 'YYYY-MM-DD';
 
-async function migrate() {
-  try {
-    return await knexMigrate('up', config.latestMigration ? { to: config.latestMigration } : {}, log);
-  } catch (e) {
-    const migrationsAlreadyRun = e.message.includes('Migration is not pending');
-
-    if (!migrationsAlreadyRun) {
-      throw e;
-    }
-    return logger.log('info', 'Migrations have already run!');
+module.exports = class DatabaseManager {
+  constructor(conf) {
+    this.logger = logger({ env: conf.env });
+    this.knex = knex(require('./knexfile')[conf.env]);
+    this.bankHolidayApi = conf.bankHolidayApi;
+    this.tableData = require(`./services/${conf.serviceName}/db_tables_config.json`);
+    this.latestMigration = conf.latestMigration;
   }
-}
-// fallback if you need to kubectl exec into running Docker container
-// and manually rollback a migration one at a time
-async function rollback() {
-  return await knexMigrate('rollback', log);
-}
 
-async function updateBankHolidaySheet() {
-  try {
-    const response = await axios.get(config.bankHolidayApi, { responseType: 'stream' });
-    response.data.pipe(fs.createWriteStream('./data/bank_holidays.json'));
-  } catch(e) {
-    logger.log('error', e);
-  }
-}
-
-function startOfDataRetentionPeriod(type, days) {
-  let periodDays = days;
-  const typeIsCalendarDays = type === 'calendar';
-  const typeIsBusinessDays = type === 'business';
-  const processingDate = moment();
-
-  while (periodDays > 0) {
-    processingDate.subtract(1, 'days');
-
-    const dateAsString = processingDate.format('YYYY-MM-DD');
-    const isBusinessDay = !isWeekend(processingDate.day()) && !isBankHoliday(dateAsString);
-
-    if (typeIsCalendarDays || (typeIsBusinessDays && isBusinessDay)) {
-      periodDays--;
-    }
-  }
-  return processingDate.format('YYYY-MM-DD');
-}
-
-function deleteQueryBuilder(table, dataRetentionInDays, periodType) {
-  // delete data older than max data age from start of today
-  return `DELETE FROM ${table} WHERE created_at < '${startOfDataRetentionPeriod(periodType, dataRetentionInDays)}'`;
-}
-
-function deleteOldTableData() {
-  const tablesToClear = tableData.map(table => {
-    return new Promise((resolve, reject) => {
-      if (table.dataRetentionInDays) {
-        const periodType = table.dataRetentionPeriodType || 'calendar';
-        // eslint-disable-next-line max-len
-        logger.log('info', `cleaning up ${table.tableName} table data older than ${table.dataRetentionInDays} ${periodType} days...`);
-
-        const query = deleteQueryBuilder(table.tableName, table.dataRetentionInDays, periodType);
-
-        return knex.raw(query)
-          .then(resolve)
-          .catch(reject);
-      }
-      return resolve();
+  deleteOldTableData() {
+    const tablesToClear = this.tableData.map(table => {
+      return new Promise((resolve, reject) => {
+        if (!table.dataRetentionInDays) {
+          return resolve();
+        }
+        return this.#clearTable(table).then(resolve).catch(reject);
+      });
     });
-  });
 
-  return Promise.all(tablesToClear);
-}
+    return Promise.all(tablesToClear);
+  }
 
-async function resetTable(table) {
-  return await knex(table).del();
-}
+  async migrate() {
+    try {
+      return await knexMigrate('up', this.latestMigration ? { to: this.latestMigration } : {}, this.#log);
+    } catch (e) {
+      const migrationsAlreadyRun = e.message.includes('Migration is not pending');
 
-module.exports = {
-  knex,
-  migrate,
-  rollback,
-  deleteOldTableData,
-  startOfDataRetentionPeriod,
-  updateBankHolidaySheet,
-  resetTable
+      if (!migrationsAlreadyRun) {
+        throw e;
+      }
+      return this.logger.log('info', 'Migrations have already run!');
+    }
+  }
+
+  async rollback() {
+    return await knexMigrate('rollback', this.#log);
+  }
+
+  async updateBankHolidaySheet() {
+    try {
+      const response = await axios.get(this.bankHolidayApi, { responseType: 'stream' });
+      response.data.pipe(fs.createWriteStream(BANK_HOLIDAYS_DATA_PATH));
+    } catch(e) {
+      this.logger.log('error', e);
+    }
+  }
+
+  // private
+  #clearTable(table) {
+    const periodType = table.dataRetentionPeriodType || 'calendar';
+    // eslint-disable-next-line max-len
+    this.logger.log('info', `cleaning up ${table.tableName} table data older than ${table.dataRetentionInDays} ${periodType} days...`);
+
+    const query = this.#deleteQueryBuilder(table.tableName, table.dataRetentionInDays, periodType);
+
+    return this.knex.raw(query);
+  }
+
+  #deleteQueryBuilder(table, dataRetentionInDays, periodType) {
+    // delete data older than max data age from start of today
+    // eslint-disable-next-line max-len
+    return `DELETE FROM ${table} WHERE created_at < '${this.#startOfDataRetentionPeriod(periodType, dataRetentionInDays)}'`;
+  }
+
+  #formatDate(date) {
+    return date.format(DATE_FORMAT);
+  }
+
+  #startOfDataRetentionPeriod(type, days) {
+    let periodDays = days;
+    const typeIsCalendarDays = type === 'calendar';
+    const typeIsBusinessDays = type === 'business';
+    const processingDate = moment();
+
+    while (periodDays > 0) {
+      processingDate.subtract(1, 'days');
+
+      const dateAsString = this.#formatDate(processingDate);
+      const isBusinessDay = !this.#isWeekend(processingDate.day()) && !this.#isBankHoliday(dateAsString);
+
+      if (typeIsCalendarDays || (typeIsBusinessDays && isBusinessDay)) {
+        periodDays--;
+      }
+    }
+    return this.#formatDate(processingDate);
+  }
+
+  #isWeekend(day) {
+    return [Saturday, Sunday].includes(day);
+  }
+
+  #log(action, migrate) {
+    return this.logger.log('info', 'Doing ' + action + ' on ' + migrate);
+  }
+
+  #isBankHoliday(date) {
+    const bankHolidays = require(BANK_HOLIDAYS_DATA_PATH);
+    const englandBankHolidays = _.get(bankHolidays, `['${BANK_HOLIDAYS_COUNTRY}'].events`, []).map(o => o.date);
+    return englandBankHolidays.includes(date);
+  }
 };
