@@ -94,10 +94,13 @@ describe('ASC service - Standard router with postgres model', () => {
         const resBefore = await db.knex('recruiters').count();
         const countBefore = +resBefore[0].count;
 
+        const now = await supertest.get(`/recruiters/email/${encodeEmail('new-recruiter-test@hotmail.com')}`);
+        console.log(now);
+
         const res = await supertest
           .post('/recruiters')
           .send({
-            email: 'new-recruit23er-test@hotmail.com'
+            email: 'new-recruiter-test@hotmail.com'
           });
 
         const resAfter = await db.knex('recruiters').count();
