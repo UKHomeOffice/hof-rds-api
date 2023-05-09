@@ -11,13 +11,13 @@ const encodeEmail = email => Buffer.from(email).toString('hex');
 
 describe('ASC service - Standard router with postgres model', () => {
   beforeEach(async () => {
-    // await db.rollback();
+    await db.rollback();
     await db.migrate();
     await db.knex.seed.run();
   });
 
   afterEach(async () => {
-    // await db.rollback();
+    await db.rollback();
   });
 
   describe('GET', () => {
