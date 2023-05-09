@@ -5,13 +5,12 @@ process.env.SERVICE_NAME = 'asc';
 const db = require('../../db');
 const api = require('../../server');
 
+const supertest = require('supertest')(api);
+
 const encodeEmail = email => Buffer.from(email).toString('hex');
 
 describe('ASC service - Standard router with postgres model', () => {
-  let supertest;
-
   beforeEach(async () => {
-    supertest = require('supertest')(api);
     await db.rollback();
     await db.migrate();
     await db.knex.seed.run();
@@ -97,9 +96,8 @@ describe('ASC service - Standard router with postgres model', () => {
 
         const res = await supertest
           .post('/recruiters')
-          .send({
-            email: 'new-recruiter-test@hotmail.com'
-          });
+          .send('email=new-recruiter-test@hotmail.com')
+          .set('Accept', 'application/json');
 
         const resAfter = await db.knex('recruiters').count();
         const countAfter = +resAfter[0].count;
