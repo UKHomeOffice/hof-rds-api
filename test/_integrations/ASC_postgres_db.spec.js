@@ -102,7 +102,7 @@ describe('ASC service - Standard router with postgres model', () => {
 
         const resAfter = await db.knex('recruiters').count();
         const countAfter = +resAfter[0].count;
-
+        console.log(res);
         expect(res.status).to.eql(200);
         expect(countBefore + 1).to.eql(countAfter);
       });
