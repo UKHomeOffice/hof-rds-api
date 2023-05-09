@@ -1,37 +1,29 @@
 
-const _ = require('lodash');
-
 const decodeEmail = email => email.includes('@') ? email : Buffer.from(email, 'hex').toString();
 
 module.exports = (app, props) => {
-  const { modelName, tableName, additionalQueries, selectableProps } = props;
+  const { modelName, tableName, additionalGetResources, selectableProps } = props;
 
   const Model = require(`./models/${modelName}`);
   const model = new Model(tableName, selectableProps);
 
-  app.get(`/${tableName}`, (req, res, next) => {
-    let queries = ['id'];
-
-    queries = queries.concat(additionalQueries || []).map(query => {
-      return req.query[query] && { [query]: req.query[query] };
-    }).filter(o => o);
-
-    const queryProps = _.merge(...queries);
-
-    if (queryProps.email) {
-      queryProps.email = decodeEmail(queryProps.email);
-    }
-
-    if (!Object.keys(queryProps).length) {
-      return res.send(404);
-    }
-
-    return model.get(queryProps)
+  app.get(`/${tableName}/:id`, (req, res, next) => {
+    return model.get({ id: req.params.id })
       .then(result => {
         return res.json(result);
       })
       .catch(next);
   });
+
+  if (additionalGetResources.includes('email')) {
+    app.get(`/${tableName}/email/:email`, (req, res, next) => {
+      return model.get({ email: decodeEmail(req.params.email) })
+        .then(result => {
+          return res.json(result);
+        })
+        .catch(next);
+    });
+  }
 
   app.post(`/${tableName}`, (req, res, next) => {
     return model.create(req.body)

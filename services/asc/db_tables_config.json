@@ -2,13 +2,15 @@
   {
     "tableName": "saved_applications",
     "modelName": "postgres-model",
-    "additionalQueries": ["email"],
-    "selectableProps": ["*"]
+    "additionalGetResources": ["email"],
+    "selectableProps": ["*"],
+    "dataRetentionPeriodType": "business",
+    "dataRetentionInDays": "7"
   },
   {
     "tableName": "recruiters",
     "modelName": "postgres-model",
-    "additionalQueries": ["email"],
+    "additionalGetResources": ["email"],
     "selectableProps": ["email"]
   }
 ]

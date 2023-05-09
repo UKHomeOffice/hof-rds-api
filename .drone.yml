@@ -46,6 +46,28 @@ steps:
       branch: master
       event: [push, pull_request]
 
+  - name: unit-tests
+    image: node:lts
+    commands:
+      - yarn test:unit
+    when:
+      branch: master
+      event: [push, pull_request]
+
+  - name: integration-tests
+    image: node:lts
+    environment:
+      NODE_ENV: test
+      DB_HOST: postgres-db
+      SERVICE_NAME: asc
+    commands:
+      - sleep 15
+      - yarn db:setup
+      - yarn test:integration
+    when:
+      branch: master
+      event: [push, pull_request]
+
   - name: build_image
     image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
     commands:
@@ -71,33 +93,6 @@ steps:
     when:
       branch: master
       event: [push, pull_request]
-
-  # Snyk & Anchore security scans which run after branch deployment to prevent blocking of PR UAT tests
-  - name: snyk_scan
-    pull: if-not-exists
-    image: node:lts
-    environment:
-      SNYK_TOKEN:
-        from_secret: snyk_token
-    commands:
-      - yarn run test:snyk
-    when:
-      branch:
-        include:
-          - master
-      event: pull_request
-
-  - name: anchore_scan
-    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission:latest
-    pull: always
-    environment:
-      IMAGE_NAME: save-return-api:${DRONE_COMMIT_SHA}
-      LOCAL_IMAGE: true
-      TOLERATE: medium
-      WHITELIST_FILE: hof-services-config/Modern_Slavery_Nrm/anchore-cve-exceptions.txt
-    when:
-      branch: master
-      event: pull_request
 
   # CRON job steps that runs security scans using Snyk & Anchore
   - name: cron_clone_repos
@@ -188,6 +183,12 @@ services:
   - name: docker
     image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
 
+  - name: postgres-db
+    image: postgres
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
   # Anchore scanning needs background service to run
   - name: anchore-submission-server
     image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission:latest

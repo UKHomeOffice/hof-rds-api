@@ -8,35 +8,57 @@
   },
   "scripts": {
     "start": "node server.js",
-    "start:dev": "nodemon -r dotenv/config server.js",
-    "db:setup": "yarn run db:migrate && yarn run db:seed",
-    "db:test": "yarn run db:setup && yarn run db:rollback",
+    "start:dev": "nodemon -r dotenv/config --ignore data/ server.js",
+    "db:setup": "yarn db:migrate && yarn db:seed",
+    "db:test": "yarn db:setup && yarn run db:rollback",
     "db:migrate": "node -e 'require(\"./db\").migrate()'",
-    "db:local:migrate": "node -r dotenv/config -e 'require(\"./db\").migrate()'",
     "db:rollback": "node -e 'require(\"./db\").rollback()'",
+    "db:local:migrate": "node -r dotenv/config -e 'require(\"./db\").migrate()'",
+    "db:local:rollback": "node -r dotenv/config -e 'require(\"./db\").rollback()'",
     "db:seed": "knex seed:run",
     "dev:db:migrate": "node -r dotenv/config -e 'require(\"./db\").migrate()' dotenv_config_path=.env-prod",
+    "test:all": "yarn test:integration && yarn test:unit",
+    "test:integration": "nyc _mocha \"test/_integration/**/*.spec.js\"",
     "test:lint": "eslint . --config ./node_modules/eslint-config-hof/default.js",
+    "test:unit": "nyc _mocha \"test/_unit/**/*.spec.js\"",
     "test:snyk": "snyk config set api=SNYK_TOKEN && snyk test"
   },
   "author": "Alex Swann",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.4.0",
     "body-parser": "^1.20.2",
     "express": "^4.18.2",
     "jquery": "^3.6.4",
     "knex": "^0.95.11",
     "knex-migrate": "^1.7.4",
     "lodash": "^4.17.21",
+    "moment": "^2.29.4",
     "morgan": "^1.10.0",
     "morgan-json": "^1.1.0",
-    "pg": "^8.7.1"
+    "node-cron": "^3.0.2",
+    "pg": "^8.7.1",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
+    "chai": "^4.3.7",
     "dotenv": "^16.0.3",
     "eslint": "^8.39.0",
     "eslint-config-hof": "^1.3.1",
+    "mocha": "^10.2.0",
     "nodemon": "^2.0.22",
-    "snyk": "^1.1143.0"
+    "nyc": "^15.1.0",
+    "proxyquire": "^2.1.3",
+    "sinon": "^15.0.4",
+    "sinon-chai": "^3.7.0",
+    "snyk": "^1.1143.0",
+    "supertest": "^6.3.3"
+  },
+  "mocha": {
+    "reporter": "spec",
+    "require": "test/common.js",
+    "recursive": "true",
+    "timeout": "9000",
+    "exit": "true"
   }
 }
