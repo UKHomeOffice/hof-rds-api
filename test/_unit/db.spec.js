@@ -1,7 +1,10 @@
 'use strict';
 
 const moment = require('moment');
+const DataRetentionWindowCalculator = require('../../lib/data_retention_window_calculator');
 const knexfileConfig = require('../../knexfile').test;
+
+const retentionCalculator = new DataRetentionWindowCalculator();
 
 const testConfig = {
   env: 'test',
@@ -12,31 +15,17 @@ const testConfig = {
 describe('Database Manager', () => {
   let DB;
   let db;
-  let axiosPipeStub;
-  let writeStreamStub;
   let knexMigrateStub;
   let knexRawQueryStub;
 
   beforeEach(async () => {
-    axiosPipeStub = sinon.stub();
-    writeStreamStub = sinon.stub();
     knexMigrateStub = sinon.stub();
     knexRawQueryStub = sinon.stub();
 
     knexRawQueryStub.resolves('Deleted!');
 
     DB = proxyquire('../db', {
-      // allows us to check config is stable for api and stream calls for bank holiday data
-      axios: {
-        get: sinon.stub()
-          .withArgs(testConfig.bankHolidayApi,  { responseType: 'stream' })
-          .resolves({ data: { pipe: axiosPipeStub } })
-      },
-      fs: {
-        createWriteStream: writeStreamStub
-          .withArgs('./data/bank_holidays.json')
-          .returns('Data piped to write stream')
-      },
+      './config': testConfig,
       // allows tests to override the time now whilst still using the full moment api
       moment: () => moment('2023-05-09'),
       // knex tested in integrations tests so stubbing here for args and data deletion logic checks
@@ -54,12 +43,10 @@ describe('Database Manager', () => {
       ]
     }).DatabaseManager;
 
-    db = new DB(testConfig);
+    db = new DB('asc', retentionCalculator);
   });
 
   afterEach(async () => {
-    axiosPipeStub.reset();
-    writeStreamStub.reset();
     knexMigrateStub.reset();
     knexRawQueryStub.reset();
   });
@@ -71,7 +58,7 @@ describe('Database Manager', () => {
     });
 
     it('runs migrations up to latestMigration if it is set', async () => {
-      db = new DB(Object.assign({}, testConfig, { latestMigration: 'test_migration' }));
+      db = new DB('asc', retentionCalculator, 'test_migration');
       await db.migrate();
       knexMigrateStub.should.have.been.calledOnce.calledWith('up', { to: 'test_migration' });
     });
@@ -81,14 +68,6 @@ describe('Database Manager', () => {
     it('rolls back the most recent batch of migrations', async () => {
       await db.rollback();
       knexMigrateStub.should.have.been.calledOnce.calledWith('rollback');
-    });
-  });
-
-  describe('#updateBankHolidaySheet', () => {
-    it('rolls back the most recent batch of migrations', async () => {
-      await db.updateBankHolidaySheet();
-      axiosPipeStub.should.have.been
-        .calledOnce.calledWithExactly('Data piped to write stream');
     });
   });
 
@@ -112,7 +91,7 @@ describe('Database Manager', () => {
         ]
       }).DatabaseManager;
 
-      db = new DB(testConfig);
+      db = new DB('asc', retentionCalculator);
 
       await db.deleteOldTableData();
       knexRawQueryStub.should.have.been
@@ -132,7 +111,7 @@ describe('Database Manager', () => {
         ]
       }).DatabaseManager;
 
-      db = new DB(testConfig);
+      db = new DB('asc', retentionCalculator);
 
       await db.deleteOldTableData();
       knexRawQueryStub.should.have.been
@@ -151,7 +130,7 @@ describe('Database Manager', () => {
         ]
       }).DatabaseManager;
 
-      db = new DB(testConfig);
+      db = new DB('asc', retentionCalculator);
 
       await db.deleteOldTableData();
       knexRawQueryStub.should.have.been
