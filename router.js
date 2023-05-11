@@ -29,7 +29,7 @@ module.exports = (app, props) => {
   app.get(`/${tableName}/:id`, (req, res, next) => {
     return model.get({ id: req.params.id })
       .then(result => {
-        const records = result;
+        let records = result;
 
         if (dataRetentionInDays) {
           records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType);
@@ -43,7 +43,7 @@ module.exports = (app, props) => {
     app.get(`/${tableName}/email/:email`, (req, res, next) => {
       return model.get({ email: decodeEmail(req.params.email) })
         .then(result => {
-          const records = result;
+          let records = result;
 
           if (dataRetentionInDays) {
             records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType);
@@ -57,7 +57,7 @@ module.exports = (app, props) => {
   app.post(`/${tableName}`, (req, res, next) => {
     return model.create(req.body)
       .then(result => {
-        const records = result;
+        let records = result;
 
         if (dataRetentionInDays) {
           records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType);
@@ -70,7 +70,7 @@ module.exports = (app, props) => {
   app.patch(`/${tableName}/:id`, (req, res, next) => {
     return model.patch(req.params.id, req.body)
       .then(result => {
-        const records = result;
+        let records = result;
 
         if (dataRetentionInDays) {
           records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType);
