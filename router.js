@@ -1,8 +1,15 @@
 
 const decodeEmail = email => email.includes('@') ? email : Buffer.from(email, 'hex').toString();
 
-module.exports = (app, props) => {
-  const { modelName, tableName, additionalGetResources, selectableProps } = props;
+module.exports = (app, props, db) => {
+  const {
+    modelName,
+    tableName,
+    additionalGetResources,
+    selectableProps,
+    dataRetentionInDays,
+    dataRetentionPeriodType
+  } = props;
 
   const Model = require(`./models/${modelName}`);
   const model = new Model(tableName, selectableProps);
@@ -14,6 +21,17 @@ module.exports = (app, props) => {
       })
       .catch(next);
   });
+
+  if (dataRetentionInDays) {
+    app.get(`/${tableName}/:id/expiry`, (req, res, next) => {
+      return model.get({ id: req.params.id })
+        .then(result => {
+          const expiry = db.getExpiryDate(result[0].created_at, dataRetentionPeriodType, dataRetentionInDays);
+          return res.json({ expiry });
+        })
+        .catch(next);
+    });
+  }
 
   if (additionalGetResources.includes('email')) {
     app.get(`/${tableName}/email/:email`, (req, res, next) => {

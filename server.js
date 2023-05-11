@@ -29,7 +29,7 @@ const setupDB = async expressApp => {
   await db.migrate();
 
   dbTablesConfig.forEach(table => {
-    return Router(expressApp, table);
+    return Router(expressApp, table, db);
   });
 
   await db.deleteOldTableData();

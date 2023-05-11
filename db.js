@@ -64,6 +64,10 @@ exports.DatabaseManager = class DatabaseManager {
     }
   }
 
+  getExpiryDate(date, periodType, dataRetentionInDays) {
+    return this.#dataRetentionEndDate(moment(date), periodType, dataRetentionInDays);
+  }
+
   // private
   #clearTable(table) {
     const periodType = table.dataRetentionPeriodType || 'calendar';
@@ -78,21 +82,31 @@ exports.DatabaseManager = class DatabaseManager {
   #deleteQueryBuilder(table, dataRetentionInDays, periodType) {
     // delete data older than max data age from start of today
     // eslint-disable-next-line max-len
-    return `DELETE FROM ${table} WHERE created_at < '${this.#startOfDataRetentionPeriod(periodType, dataRetentionInDays)}'`;
+    const dataRetentionStartDate = this.#dataRetentionStartDate(moment(), periodType, dataRetentionInDays);
+    return `DELETE FROM ${table} WHERE created_at < '${dataRetentionStartDate}'`;
   }
 
   #formatDate(date) {
     return date.format(DATE_FORMAT);
   }
 
-  #startOfDataRetentionPeriod(type, days) {
+  #dataRetentionStartDate(fromDate, type, days) {
+    return this.#calculateDataRetention('end', fromDate, type, days);
+  }
+
+  #dataRetentionEndDate(fromDate, type, days) {
+    return this.#calculateDataRetention('start', fromDate, type, days);
+  }
+
+  #calculateDataRetention(from, fromDate, type, days) {
     let periodDays = days;
-    const typeIsCalendarDays = type === 'calendar';
+    const fromPeriodStart = from === 'start';
+    const typeIsCalendarDays = type === 'calendar' || !type;
     const typeIsBusinessDays = type === 'business';
-    const processingDate = moment();
+    const processingDate = fromDate;
 
     while (periodDays > 0) {
-      processingDate.subtract(1, 'days');
+      fromPeriodStart ? processingDate.add(1, 'days') : processingDate.subtract(1, 'days');
 
       const dateAsString = this.#formatDate(processingDate);
       const isBusinessDay = !this.#isWeekend(processingDate.day()) && !this.#isBankHoliday(dateAsString);
