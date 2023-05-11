@@ -1,21 +1,21 @@
 'use strict';
 
+process.env.SERVICE_NAME = 'asc';
+
+const DataRetentionWindowCalculator = require('../../lib/data_retention_window_calculator');
 const DB = require('../../db').DatabaseManager;
 const api = require('../../server');
 
 const supertest = require('supertest')(api);
 
 const encodeEmail = email => Buffer.from(email).toString('hex');
+const retentionCalculator = new DataRetentionWindowCalculator();
 
 describe('ASC service - Standard router with postgres model', () => {
   let db;
 
   beforeEach(async () => {
-    db = new DB({
-      env: 'test',
-      bankHolidayApi: 'https://www.gov.uk/bank-holidays.json',
-      serviceName: 'asc'
-    });
+    db = new DB('asc', retentionCalculator);
 
     await db.rollback();
     await db.migrate();
@@ -30,6 +30,7 @@ describe('ASC service - Standard router with postgres model', () => {
     describe('/saved_applications', () => {
       it('single entry by encoded email', done => {
         const email = 'test@hotmail.com';
+        const expiry = retentionCalculator.getRetentionEndDate('7', 'business');
         supertest
           .get(`/saved_applications/email/${encodeEmail(email)}`)
           .set('Accept', 'application/json')
@@ -39,6 +40,7 @@ describe('ASC service - Standard router with postgres model', () => {
             expect(body.length).to.eql(1);
             expect(body.map(o => o.applicant_id)).to.deep.eql(['0000001']);
             expect(body.map(o => o.recruiter_id)).to.deep.eql([1]);
+            expect(body.map(o => o.expires_at)).to.deep.eql([expiry]);
             expect(body.map(o => o.email)).to.deep.eql(['test@hotmail.com']);
           })
           .end(done);
@@ -46,6 +48,7 @@ describe('ASC service - Standard router with postgres model', () => {
 
       it('multiple entries by encoded email', done => {
         const email = 'test2@hotmail.com';
+        const expiry = retentionCalculator.getRetentionEndDate('7', 'business');
         supertest
           .get(`/saved_applications/email/${encodeEmail(email)}`)
           .set('Accept', 'application/json')
@@ -55,12 +58,14 @@ describe('ASC service - Standard router with postgres model', () => {
             expect(body.length).to.eql(2);
             expect(body.map(o => o.applicant_id)).to.deep.eql(['0000002', '0000003']);
             expect(body.map(o => o.recruiter_id)).to.deep.eql([2, 2]);
+            expect(body.map(o => o.expires_at)).to.deep.eql([expiry, expiry]);
             expect(body.map(o => o.email)).to.deep.eql(['test2@hotmail.com', 'test2@hotmail.com']);
           })
           .end(done);
       });
 
       it('single entry by ID', done => {
+        const expiry = retentionCalculator.getRetentionEndDate('7', 'business');
         supertest
           .get('/saved_applications/2')
           .set('Accept', 'application/json')
@@ -71,6 +76,7 @@ describe('ASC service - Standard router with postgres model', () => {
             expect(result.id).to.eql(2);
             expect(result.applicant_id).to.eql('0000002');
             expect(result.recruiter_id).to.eql(2);
+            expect(result.expires_at).to.deep.eql(expiry);
             expect(result.email).to.eql('test2@hotmail.com');
           })
           .end(done);
