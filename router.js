@@ -27,6 +27,25 @@ module.exports = (app, props) => {
   const Model = require(`./models/${modelName}`);
   const model = new Model(tableName, selectableProps);
 
+  app.get(`/${tableName}/history`, (req, res, next) => {
+    if (!req.query.timestamp || !req.query.from) {
+      return res.send({
+        status: 400,
+        message: "Please add a 'timestamp' (column name) and 'from' query to your request"
+      });
+    }
+    return model.getInTimeRange(req.query)
+      .then(result => {
+        let records = result;
+
+        if (dataRetentionInDays) {
+          records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType);
+        }
+        return res.json(records);
+      })
+      .catch(next);
+  });
+
   if (enableMetrics) {
     app.get(`/${tableName}/metrics`, (req, res, next) => {
       return model.getMetrics()

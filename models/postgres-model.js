@@ -37,7 +37,14 @@ module.exports = class PostgresModel {
       .timeout(this.requestTimeout);
   }
 
+  getInTimeRange(props) {
+    return knex(this.tableName)
+      .whereBetween(props.timestamp, [props.from, (props.to || knex.fn.now())])
+      .timeout(this.requestTimeout);
+  }
+
   async getMetrics() {
+    // TODO use knex to build these queries like it is meant to rather than this horrible raw SQL one liner
     const tsize = await knex.raw('select relname, pg_size_pretty(pg_total_relation_size(relname::regclass)) as full_size, pg_size_pretty(pg_relation_size(relname::regclass)) as table_size, pg_size_pretty(pg_total_relation_size(relname::regclass) - pg_relation_size(relname::regclass)) as index_size from pg_stat_user_tables order by pg_total_relation_size(relname::regclass) desc limit 10;');
     const tableSize = _.find(tsize.rows, obj => obj.relname === this.tableName).full_size;
     const dsize = await knex.raw('select datname, pg_size_pretty(pg_database_size(datname)) from pg_database order by pg_database_size(datname);');
