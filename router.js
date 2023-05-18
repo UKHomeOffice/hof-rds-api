@@ -1,7 +1,6 @@
 'use strict';
 
 const DataRetentionWindowCalculator = require('./lib/data_retention_window_calculator');
-const decodeEmail = email => email.includes('@') ? email : Buffer.from(email, 'hex').toString();
 
 const setExpiryToRecords = (records, days, type) => {
   const calc = new DataRetentionWindowCalculator();
@@ -13,6 +12,13 @@ const setExpiryToRecords = (records, days, type) => {
   });
 };
 
+const decodeParam = (type, param) => {
+  if (type === 'email') {
+    return param.includes('@') ? param : Buffer.from(param, 'hex').toString();
+  }
+  return param;
+};
+
 module.exports = (app, props) => {
   const {
     modelName,
@@ -20,8 +26,7 @@ module.exports = (app, props) => {
     additionalGetResources,
     selectableProps,
     dataRetentionInDays,
-    dataRetentionPeriodType,
-    enableMetrics
+    dataRetentionPeriodType
   } = props;
 
   const Model = require(`./models/${modelName}`);
@@ -46,15 +51,13 @@ module.exports = (app, props) => {
       .catch(next);
   });
 
-  if (enableMetrics) {
-    app.get(`/${tableName}/metrics`, (req, res, next) => {
-      return model.getMetrics()
-        .then(result => {
-          return res.json(result);
-        })
-        .catch(next);
-    });
-  }
+  app.get(`/${tableName}/metrics`, (req, res, next) => {
+    return model.getMetrics(req.query)
+      .then(result => {
+        return res.json(result);
+      })
+      .catch(next);
+  });
 
   app.get(`/${tableName}/:id`, (req, res, next) => {
     return model.get({ id: req.params.id })
@@ -69,18 +72,20 @@ module.exports = (app, props) => {
       .catch(next);
   });
 
-  if (additionalGetResources.includes('email')) {
-    app.get(`/${tableName}/email/:email`, (req, res, next) => {
-      return model.get({ email: decodeEmail(req.params.email) })
-        .then(result => {
-          let records = result;
+  if (additionalGetResources) {
+    additionalGetResources.forEach(resource => {
+      app.get(`/${tableName}/${resource}/:${resource}`, (req, res, next) => {
+        return model.get({ [resource]: decodeParam(resource, req.params[resource]) })
+          .then(result => {
+            let records = result;
 
-          if (dataRetentionInDays) {
-            records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType);
-          }
-          return res.json(records);
-        })
-        .catch(next);
+            if (dataRetentionInDays) {
+              records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType);
+            }
+            return res.json(records);
+          })
+          .catch(next);
+      });
     });
   }
 

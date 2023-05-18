@@ -5,7 +5,6 @@
     "additionalGetResources": ["email"],
     "selectableProps": ["*"],
     "dataRetentionPeriodType": "calendar",
-    "dataRetentionInDays": "186",
-    "enableMetrics": true
+    "dataRetentionInDays": "186"
   }
 ]
