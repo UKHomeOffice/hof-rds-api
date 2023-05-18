@@ -52,7 +52,7 @@ module.exports = class PostgresModel {
       row_count: count[0].count
     };
   }
-  
+
   patch(id, props) {
     const fieldsToUpdate = Object.assign({}, props, {
       updated_at: knex.fn.now()
