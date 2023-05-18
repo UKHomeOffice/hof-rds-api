@@ -63,9 +63,8 @@ module.exports = class PostgresModel {
       return await knex(this.tableName)
         .whereNotNull(props.count)
         .count();
-    } else {
-      return await knex(this.tableName).count();
     }
+    return await knex(this.tableName).count();
   }
 
   async getMetrics(props) {
