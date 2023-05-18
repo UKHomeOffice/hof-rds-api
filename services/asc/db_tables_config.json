@@ -5,7 +5,8 @@
     "additionalGetResources": ["email"],
     "selectableProps": ["*"],
     "dataRetentionPeriodType": "business",
-    "dataRetentionInDays": "7"
+    "dataRetentionInDays": "7",
+    "enableMetrics": true
   },
   {
     "tableName": "recruiters",

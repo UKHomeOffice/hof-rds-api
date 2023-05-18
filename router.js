@@ -20,11 +20,22 @@ module.exports = (app, props) => {
     additionalGetResources,
     selectableProps,
     dataRetentionInDays,
-    dataRetentionPeriodType
+    dataRetentionPeriodType,
+    enableMetrics
   } = props;
 
   const Model = require(`./models/${modelName}`);
   const model = new Model(tableName, selectableProps);
+
+  if (enableMetrics) {
+    app.get(`/${tableName}/metrics`, (req, res, next) => {
+      return model.getMetrics()
+        .then(result => {
+          return res.json(result);
+        })
+        .catch(next);
+    });
+  }
 
   app.get(`/${tableName}/:id`, (req, res, next) => {
     return model.get({ id: req.params.id })

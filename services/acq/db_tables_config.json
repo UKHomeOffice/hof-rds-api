@@ -1,0 +1,9 @@
+[
+  {
+    "tableName": "reports",
+    "modelName": "postgres-model",
+    "additionalGetResources": ["email"],
+    "selectableProps": ["session"],
+    "enableMetrics": true
+  }
+]
