@@ -1,0 +1,10 @@
+[
+  {
+    "tableName": "reports",
+    "modelName": "postgres-model",
+    "additionalGetResources": ["email"],
+    "selectableProps": ["*"],
+    "dataRetentionPeriodType": "calendar",
+    "dataRetentionInDays": "186"
+  }
+]
