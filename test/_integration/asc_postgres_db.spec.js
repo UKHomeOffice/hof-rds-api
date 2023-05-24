@@ -30,7 +30,7 @@ describe('ASC service - Standard router with postgres model', () => {
     describe('/saved_applications', () => {
       it('single entry by encoded email', done => {
         const email = 'test@hotmail.com';
-        const expiry = retentionCalculator.getRetentionEndDate('7', 'business');
+        const expiry = retentionCalculator.getRetentionEndDate('5', 'business');
         supertest
           .get(`/saved_applications/email/${encodeEmail(email)}`)
           .set('Accept', 'application/json')
@@ -48,7 +48,7 @@ describe('ASC service - Standard router with postgres model', () => {
 
       it('multiple entries by encoded email', done => {
         const email = 'test2@hotmail.com';
-        const expiry = retentionCalculator.getRetentionEndDate('7', 'business');
+        const expiry = retentionCalculator.getRetentionEndDate('5', 'business');
         supertest
           .get(`/saved_applications/email/${encodeEmail(email)}`)
           .set('Accept', 'application/json')
@@ -65,7 +65,7 @@ describe('ASC service - Standard router with postgres model', () => {
       });
 
       it('single entry by ID', done => {
-        const expiry = retentionCalculator.getRetentionEndDate('7', 'business');
+        const expiry = retentionCalculator.getRetentionEndDate('5', 'business');
         supertest
           .get('/saved_applications/2')
           .set('Accept', 'application/json')
