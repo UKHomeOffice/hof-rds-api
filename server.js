@@ -45,8 +45,8 @@ const setupDB = async expressApp => {
   httpServer.listen(config.http_port);
 
   if (config.https_port) {
-    const privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
-    const certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
+    const privateKey  = fs.readFileSync('/certs/tls.key', 'utf8');
+    const certificate = fs.readFileSync('/certs/tls.crt', 'utf8');
     const credentials = { key: privateKey, cert: certificate };
 
     const httpsServer = https.createServer(credentials, expressApp);
