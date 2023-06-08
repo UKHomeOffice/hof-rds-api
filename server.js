@@ -9,6 +9,9 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const json = require('morgan-json');
 const cron = require('node-cron');
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
 
 const format = json({
   short: ':method :url :status',
@@ -37,7 +40,18 @@ const setupDB = async expressApp => {
   await db.deleteOldTableData();
   await retentionCalculator.updateBankHolidaySheet();
 
-  expressApp.listen(config.port);
+  const httpServer = http.createServer(expressApp);
+
+  httpServer.listen(config.http_port);
+
+  if (config.https_port) {
+    const privateKey  = fs.readFileSync('/certs/tls.key', 'utf8');
+    const certificate = fs.readFileSync('/certs/tls.crt', 'utf8');
+    const credentials = { key: privateKey, cert: certificate };
+
+    const httpsServer = https.createServer(credentials, expressApp);
+    httpsServer.listen(config.https_port);
+  }
 };
 
 setupDB(app);
