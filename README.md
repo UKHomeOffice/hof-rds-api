@@ -46,7 +46,7 @@ SERVICE_NAME=asc
 NODE_ENV=local
 LATEST_MIGRATION=20230428215725_saved_applications (optional - otherwise runs all migrations)
 ```
-Then run `npm run db:migrate:local` to update your local database with the relevant migrations for local testing.
+Then run `yarn db:local:migrate` to update your local database with the relevant migrations for local testing.
 
 ## Install & Run <a name="install-and-run"></a>
 The application can be run on your local machine
