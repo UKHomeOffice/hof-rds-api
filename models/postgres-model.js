@@ -39,7 +39,7 @@ module.exports = class PostgresModel {
 
   getInTimeRange(props) {
     const selectableProps = props.selectableProps ?
-      DEFAULT_PROPS.concat(props.selectableProps) :
+      DEFAULT_PROPS.concat(props.selectableProps.split(',')) :
       this.selectableProps;
 
     if (props.withValue) {
