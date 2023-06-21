@@ -38,13 +38,19 @@ module.exports = class PostgresModel {
   }
 
   getInTimeRange(props) {
+    const selectableProps = props.selectableProps ?
+      DEFAULT_PROPS.concat(props.selectableProps) :
+      this.selectableProps;
+
     if (props.withValue) {
-      return knex(this.tableName)
+      return knex.select(selectableProps)
+        .from(this.tableName)
         .whereNotNull(props.withValue)
         .whereBetween(props.timestamp, [props.from, (props.to || knex.fn.now())])
         .timeout(this.requestTimeout);
     }
-    return knex(this.tableName)
+    return knex.select(selectableProps)
+      .from(this.tableName)
       .whereBetween(props.timestamp, [props.from, (props.to || knex.fn.now())])
       .timeout(this.requestTimeout);
   }
