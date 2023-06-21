@@ -54,9 +54,15 @@ The application can be run on your local machine
 ## Creating a migration
 To create a new migration, go into the relevant service folder, i.e. `cd ./services/asc`, ensure you have `npm i knex -g` and run:
 ```
+SERVICE_NAME=asc
 knex migrate:make <migration_name>
 ```
 This will then create the new migration in the migrations folder of the service
+Then run
+```
+NODE_ENV=local
+yarn db:local:migrate
+```
 
 ### Dependencies <a name="dependencies"></a>
 You will need to have the following installed:
