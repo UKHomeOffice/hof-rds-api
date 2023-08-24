@@ -2,7 +2,7 @@
   {
     "tableName": "saved_applications",
     "modelName": "postgres-model",
-    "additionalGetResources": ["email", "applicant_id"],
+    "additionalGetResources": ["email"],
     "selectableProps": ["*"],
     "dataRetentionPeriodType": "business",
     "dataRetentionInDays": "5"
