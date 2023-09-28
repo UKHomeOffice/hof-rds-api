@@ -8,14 +8,16 @@
   },
   "scripts": {
     "start": "node server.js",
+
     "start:dev": "nodemon -r dotenv/config --ignore data/ server.js",
     "db:setup": "yarn db:migrate && yarn db:seed",
     "db:test": "yarn db:setup && yarn run db:rollback",
-    "db:migrate": "node -e 'require(\"./db\").migrate()'",
+    "db:make": "node -r dotenv/config ./node_modules/knex/bin/cli.js migrate:make",
+    "db:migrate": "node -r dotenv/config -e 'require(\"./db\").migrate()'",
     "db:rollback": "node -e 'require(\"./db\").rollback()'",
     "db:local:migrate": "node -r dotenv/config -e 'require(\"./db\").migrate()'",
     "db:local:rollback": "node -r dotenv/config -e 'require(\"./db\").rollback()'",
-    "db:seed": "knex seed:run",
+    "db:seed": "node -r dotenv/config ./node_modules/knex/bin/cli.js seed:run",
     "dev:db:migrate": "node -r dotenv/config -e 'require(\"./db\").migrate()' dotenv_config_path=.env-prod",
     "test:all": "yarn test:integration && yarn test:unit",
     "test:integration": "nyc _mocha \"test/_integration/**/*.spec.js\"",
