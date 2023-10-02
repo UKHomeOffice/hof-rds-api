@@ -26,6 +26,8 @@ Run the following commands to setup a test DB:
 brew install postgres
 brew services start postgresql
 psql postgres
+CREATE ROLE postgres WITH LOGIN PASSWORD 'postgres';
+ALTER ROLE postgres WITH SUPERUSER;
 CREATE ROLE knex WITH LOGIN PASSWORD 'knex';
 ALTER ROLE knex WITH SUPERUSER;
 CREATE DATABASE <DB_NAME>;
@@ -36,7 +38,7 @@ If you download Postico for Mac (https://eggerapps.at/postico/), you can then in
 You then need to use a knexfile with migrations and seeds folders to populate your database.
 The ms-schema repo which is used for migrations in the Modern Slavery service (https://github.com/UKHomeOffice/ms-schema) can be used as a test example and is included in this project. You can run
 ```
-yarn run db:setup
+yarn run db:local:setup
 ```
 from that repo to setup your database.
 
@@ -46,15 +48,15 @@ SERVICE_NAME=asc
 NODE_ENV=local
 LATEST_MIGRATION=20230428215725_saved_applications (optional - otherwise runs all migrations)
 ```
-Then run `npm run db:migrate:local` to update your local database with the relevant migrations for local testing.
+Then run `yarn run db:local:migrate` to update your local database with the relevant migrations for local testing.
 
 ## Install & Run <a name="install-and-run"></a>
 The application can be run on your local machine
 
 ## Creating a migration
-To create a new migration, go into the relevant service folder, i.e. `cd ./services/asc`, ensure you have `npm i knex -g` and run:
+To create a new migration, go into the relevant service folder, i.e. `cd ./services/<service_name>`, ensure you have `npm i knex -g` and run:
 ```
-SERVICE_NAME=asc
+SERVICE_NAME=<service_name>
 knex migrate:make <migration_name>
 ```
 This will then create the new migration in the migrations folder of the service
@@ -67,9 +69,11 @@ yarn db:local:migrate
 ### Dependencies <a name="dependencies"></a>
 You will need to have the following installed:
 
-[Node JS](https://nodejs.org/en/download/releases/) ( LTS Erbium v14.x )
+[Node JS](https://nodejs.org/en/download/releases/) ( LTS Hydrogen v18.x )
 
-[npm](https://www.npmjs.com/get-npm) ( v6.x )
+[NPM](https://www.npmjs.com/get-npm) ( v8.x )
+
+[Yarn](https://yarnpkg.com) (v1.x)
 
 [PostgreSQL](https://www.postgresql.org/download/) ( v12.x )
 
