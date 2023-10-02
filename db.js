@@ -12,6 +12,7 @@ const log = ({ action, migration }) =>
 exports.DatabaseManager = class DatabaseManager {
   constructor(serviceName, retentionCalculator, latestMigration) {
     this.knex = knex;
+    this.serviceName = config.serviceName;
     this.retentionCalculator = retentionCalculator;
     this.tableData = require(`./services/${serviceName}/db_tables_config.json`);
     this.latestMigration = latestMigration;
