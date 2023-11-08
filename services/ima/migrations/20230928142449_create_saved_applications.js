@@ -8,8 +8,7 @@ exports.up = function(knex) {
         table.json('session').notNullable();
         table.timestamps(true, true);
         table.timestamp('submitted_at');
-      });  
-  
+      });
 };
 
 exports.down = function(knex) {
