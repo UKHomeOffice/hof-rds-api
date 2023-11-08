@@ -32,9 +32,12 @@ exports.DatabaseManager = class DatabaseManager {
   }
 
   async migrate() {
+    console.log('1 migrating?')
     try {
+      console.log('2 migrating?')
       return await knexMigrate('up', this.latestMigration ? { to: this.latestMigration } : {}, log);
     } catch (e) {
+      console.log('Migration failed ', e)
       const migrationsAlreadyRun = e.message.includes('Migration is not pending');
 
       if (!migrationsAlreadyRun) {
