@@ -9,14 +9,14 @@ exports.seed = function (knex) {
       // Inserts seed entries
       return knex('saved_applications').insert([
         {
-          email: 'dev@testing.com',
+          email: 'test.dev@digital.homeoffice.gov.uk',
           uan: '1234-5645-8670-0000',
           date_of_birth: '2000/01/01',
           session: '{}',
           submitted_at: '2023/09/09'
         },
         {
-          email: 'dev@test.com',
+          email: 'test.dev@digital.homeoffice.gov.uk',
           uan: '1784-0006-6790-7899',
           date_of_birth: '2000/01/01',
           session: '{}',
