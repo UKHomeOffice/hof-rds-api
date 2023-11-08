@@ -21,18 +21,19 @@ const format = json({
 });
 
 const dbTablesConfig = require(`./services/${config.serviceName}/db_tables_config.json`);
-
+console.log('1 ', config.serviceName);
 const retentionCalculator = new DataRetentionWindowCalculator();
 const db = new DB(config.serviceName, retentionCalculator, config.latestMigration);
-
+console.log('2 ', config.serviceName);
 const app = express();
 
 app.use(bodyParser.json({ limit: config.maxPayloadSize }));
 app.use(morgan(format));
 
 const setupDB = async expressApp => {
+  console.log('3 ', config.serviceName);
   await db.migrate();
-
+  console.log('4 ', config.serviceName);
   dbTablesConfig.forEach(table => {
     return Router(expressApp, table);
   });
