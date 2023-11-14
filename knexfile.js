@@ -30,7 +30,7 @@ const remoteConfig = {
     database: process.env.DB_NAME
   }
 };
-console.log(remoteConfig)
+console.log(remoteConfig);
 
 const serviceConfig = {
   migrations: {
