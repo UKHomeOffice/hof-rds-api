@@ -30,6 +30,7 @@ const remoteConfig = {
     database: process.env.DB_NAME
   }
 };
+console.log(remoteConfig)
 
 const serviceConfig = {
   migrations: {
@@ -37,14 +38,20 @@ const serviceConfig = {
     directory: __dirname + `/services/${config.serviceName}/migrations`
   },
   seeds: {
-    directory: __dirname +  `/services/${config.serviceName}/seeds`
+    directory: __dirname + `/services/${config.serviceName}/seeds`
   }
 };
 
 const poolConfig = {
   pool: {
     min: 2,
-    max: 10
+    max: 100,
+    acquireTimeoutMillis: 300000,
+    createTimeoutMillis: 300000,
+    destroyTimeoutMillis: 300000,
+    idleTimeoutMillis: 30000,
+    reapIntervalMillis: 1000,
+    createRetryIntervalMillis: 2000
   }
 };
 
