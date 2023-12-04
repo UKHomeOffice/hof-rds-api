@@ -1,4 +1,4 @@
-FROM node:lts-alpine3.18@sha256:d016f19a31ac259d78dc870b4c78132cf9e52e89339ff319bdd9999912818f4a
+FROM node:lts@sha256:b41c3eccd3c2404464bdbe37f6ee28fc832b2d99b10caeaa38b250a9b9d601e8
 
 USER root
 # Update packages as a result of Anchore security vulnerability checks
