@@ -6,5 +6,11 @@
     "selectableProps": ["*"],
     "dataRetentionPeriodType": "calendar",
     "dataRetentionInDays": "730"
+  },
+  {
+    "tableName": "csv_urls",
+    "modelName": "postgres-model",
+    "additionalGetResources": ["email"],
+    "selectableProps": ["*"]
   }
 ]
