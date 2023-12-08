@@ -4,7 +4,7 @@
   "description": "A repo for a backend microservice for hof services to communicate with RDS instances",
   "main": "server.js",
   "engines": {
-    "node": "^20.9.0"
+    "node": ">=18.16.1"
   },
   "scripts": {
     "start": "node server.js",
