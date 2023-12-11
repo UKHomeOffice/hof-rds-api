@@ -11,6 +11,8 @@
     "tableName": "csv_urls",
     "modelName": "postgres-model",
     "additionalGetResources": ["created_at"],
-    "selectableProps": ["*"]
+    "selectableProps": ["*"],
+    "dataRetentionPeriodType": "calendar",
+    "dataRetentionInDays": "730"
   }
 ]
