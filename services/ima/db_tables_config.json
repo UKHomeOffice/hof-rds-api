@@ -2,7 +2,7 @@
   {
     "tableName": "saved_applications",
     "modelName": "postgres-model",
-    "additionalGetResources": ["uan", "date_of_birth","email","submitted_at"],
+    "additionalGetResources": ["uan", "date_of_birth", "email", "submitted_at"],
     "selectableProps": ["*"],
     "dataRetentionPeriodType": "calendar",
     "dataRetentionInDays": "730"
@@ -10,7 +10,7 @@
   {
     "tableName": "csv_urls",
     "modelName": "postgres-model",
-    "additionalGetResources": ["email"],
+    "additionalGetResources": ["created_at"],
     "selectableProps": ["*"]
   }
 ]
