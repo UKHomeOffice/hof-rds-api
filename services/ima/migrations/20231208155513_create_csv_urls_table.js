@@ -2,7 +2,7 @@
 exports.up = function(knex) {
   return knex.schema.createTable('csv_urls', table => {
     table.increments();
-    table.string('url').notNullable();
+    table.string('url', 500).notNullable();
     table.timestamps(true, true);
   });
 };
