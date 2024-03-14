@@ -2,7 +2,7 @@
   {
     "tableName": "saved_applications",
     "modelName": "postgres-model",
-    "additionalGetResources": ["uan", "date_of_birth", "email", "submitted_at"],
+    "additionalGetResources": ["cepr", "date_of_birth", "email", "submitted_at", "duty_to_remove_alert"],
     "selectableProps": ["*"],
     "dataRetentionPeriodType": "calendar",
     "dataRetentionInDays": "730"
