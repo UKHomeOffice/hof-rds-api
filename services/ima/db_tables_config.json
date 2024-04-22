@@ -19,8 +19,6 @@
     "tableName": "cepr_lookup",
     "modelName": "postgres-model",
     "additionalGetResources": ["cepr", "dob", "dtr"],
-    "selectableProps": ["*"],
-    "dataRetentionPeriodType": "calendar",
-    "dataRetentionInDays": "730"
+    "selectableProps": ["*"]
   }
 ]
