@@ -10,11 +10,18 @@ const DEFAULT_PROPS = [
   'updated_at'
 ];
 
+const defineSelectableProps = (tableProps, defaultProps) => {
+  if (tableProps.length === 1 && tableProps[0] === '*') {
+    return tableProps;
+  }
+  return defaultProps.concat(tableProps || []);
+}
+
 module.exports = class PostgresModel {
   constructor(tableName, selectableProps) {
     this.requestTimeout = config.requestTimeout;
     this.tableName = tableName;
-    this.selectableProps = DEFAULT_PROPS.concat(selectableProps || []);
+    this.selectableProps = defineSelectableProps(selectableProps, DEFAULT_PROPS);
   }
 
   create(props) {
