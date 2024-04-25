@@ -15,7 +15,7 @@ const defineSelectableProps = (tableProps, defaultProps) => {
     return tableProps;
   }
   return defaultProps.concat(tableProps || []);
-}
+};
 
 module.exports = class PostgresModel {
   constructor(tableName, selectableProps) {
