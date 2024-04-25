@@ -1,0 +1,10 @@
+[
+  {
+    "tableName": "saved_applications",
+    "modelName": "postgres-model",
+    "additionalGetResources": ["uan", "brp", "date_of_birth", "email", "submitted_at"],
+    "selectableProps": ["*"],
+    "dataRetentionPeriodType": "calendar",
+    "dataRetentionInDays": "730"
+  }
+]
