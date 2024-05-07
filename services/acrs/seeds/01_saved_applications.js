@@ -27,7 +27,7 @@ exports.seed = function (knex) {
         {
           email: 'test.dev@digital.homeoffice.gov.uk',
           uan: null,
-          brp: 'RJ0000000',
+          brp: 'RZ0000000',
           date_of_birth: '2000/01/01',
           session: '{}',
           submitted_at: '2023/09/09'
@@ -35,7 +35,7 @@ exports.seed = function (knex) {
         {
           email: 'test.dev@digital.homeoffice.gov.uk',
           uan: null,
-          brp: 'RJ0000001',
+          brp: 'RZ0000001',
           date_of_birth: '2000/01/01',
           session: '{}',
           submitted_at: '2023/09/09'
