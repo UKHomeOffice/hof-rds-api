@@ -10,7 +10,7 @@
   {
     "tableName": "recruiters",
     "modelName": "postgres-model",
-    "additionalGetResources": ["email"],
-    "selectableProps": ["email"]
+    "additionalGetResources": ["email", "id"],
+    "selectableProps": ["email", "id"]
   }
 ]
