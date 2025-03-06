@@ -1,0 +1,16 @@
+[
+  {
+    "tableName": "applicants",
+    "modelName": "postgres-model",
+    "additionalGetResources": ["username", "kc_id"],
+    "selectableProps": ["*"]
+  },
+  {
+    "tableName": "applications",
+    "modelName": "postgres-model",
+    "additionalGetResources": ["applicant_id"],
+    "selectableProps": ["*"],
+    "dataRetentionPeriodType": "business",
+    "dataRetentionInDays": "5"
+  }
+]
