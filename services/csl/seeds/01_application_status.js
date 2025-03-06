@@ -1,5 +1,5 @@
 exports.seed = function (knex) {
-  // Deletes ALL existing entries and relations between saved_applications & recruiters
+  // Deletes ALL existing entries
   return knex('application_status').del()
     .then(function () {
       // Inserts seed entries
