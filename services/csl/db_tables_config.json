@@ -2,7 +2,7 @@
   {
     "tableName": "applicants",
     "modelName": "postgres-model",
-    "additionalGetResources": ["username", "kc_id"],
+    "additionalGetResources": ["username", "keycloak_uuid"],
     "selectableProps": ["*"]
   },
   {
