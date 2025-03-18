@@ -24,7 +24,10 @@ exports.DatabaseManager = class DatabaseManager {
         if (!table.dataRetentionInDays) {
           return resolve();
         }
-        return this.#clearTable(table).then(resolve).catch(reject);
+        const { tableName, dataRetentionPeriodType, dataRetentionInDays } = table;
+        return this.clearExpired(tableName, 'created_at', dataRetentionInDays, dataRetentionPeriodType)
+          .then(resolve)
+          .catch(reject);
       });
     });
 
@@ -48,22 +51,21 @@ exports.DatabaseManager = class DatabaseManager {
     return await knexMigrate('rollback', log);
   }
 
-  // private
-  #clearTable(table) {
-    const periodType = table.dataRetentionPeriodType || 'calendar';
+  clearExpired(tableName, dateType, retentionDays, period) {
+    const periodType = period || 'calendar';
     // eslint-disable-next-line max-len
-    logger.log('info', `cleaning up ${table.tableName} table data older than ${table.dataRetentionInDays} ${periodType} days...`);
+    logger.log('info', `deleting ${tableName} rows where ${dateType} is older than ${retentionDays} ${periodType} days...`);
 
-    const startDate = this.retentionCalculator.getRetentionStartDate(table.dataRetentionInDays, periodType, moment());
-    const query = this.#deleteQueryBuilder(table.tableName, startDate);
+    const startDate = this.retentionCalculator.getRetentionStartDate(retentionDays, periodType, moment());
+    const query = this.#deleteQueryBuilder(tableName, dateType, startDate);
 
     return this.knex.raw(query);
   }
 
-  #deleteQueryBuilder(table, startDate) {
+  #deleteQueryBuilder(table, dateType, startDate) {
     // delete data older than start of data retention window
     // eslint-disable-next-line max-len
-    return `DELETE FROM ${table} WHERE created_at < '${startDate}'`;
+    return `DELETE FROM ${table} WHERE ${dateType} < '${startDate}'`;
   }
 };
 
@@ -78,3 +80,9 @@ exports.rollback = async () => {
   const db = new exports.DatabaseManager(config.serviceName, retentionCalculator, config.latestMigration);
   await db.rollback();
 };
+
+exports.clearExpired = async (tableName, dateColumn, retentionDays, periodType) => {
+  const retentionCalculator = new DataRetentionWindowCalculator();
+  const db = new exports.DatabaseManager(config.serviceName, retentionCalculator, config.latestMigration);
+  await db.clearExpired(tableName, dateColumn, retentionDays, periodType);
+}
