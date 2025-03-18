@@ -124,9 +124,9 @@ module.exports = (app, props) => {
       .catch(next);
   });
 
-  app.delete(`/clear/:tableName/:columnName/older/:days/:period`, (req, res, next) => {
-    const { tableName, columnName, days, period } = req.params;
-    return clearExpired(tableName, columnName, days, period)
+  app.delete('/clear/:tableName/:columnName/older/:days/:period', (req, res, next) => {
+    const { targetTable, columnName, days, period } = req.params;
+    return clearExpired(targetTable, columnName, days, period)
       .then(() => {
         return res.sendStatus(200);
       })
