@@ -10,7 +10,7 @@
     "modelName": "postgres-model",
     "additionalGetResources": ["applicant_id"],
     "selectableProps": ["*"],
-    "dataRetentionPeriodType": "business",
-    "dataRetentionInDays": "5"
+    "dataRetentionPeriodType": "calendar",
+    "dataRetentionInDays": "187"
   }
 ]
