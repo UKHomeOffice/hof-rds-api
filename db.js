@@ -25,7 +25,8 @@ exports.DatabaseManager = class DatabaseManager {
           return resolve();
         }
         const { tableName, dataRetentionPeriodType, dataRetentionInDays } = table;
-        return this.clearExpired(tableName, 'created_at', dataRetentionInDays, dataRetentionPeriodType)
+        // eslint-disable-next-line
+        return this.clearExpired(tableName, dateType = 'created_at', dataRetentionInDays, dataRetentionPeriodType)
           .then(resolve)
           .catch(reject);
       });
@@ -51,12 +52,11 @@ exports.DatabaseManager = class DatabaseManager {
     return await knexMigrate('rollback', log);
   }
 
-  clearExpired(table, dateType, retentionDays, period) {
-    const periodType = period || 'calendar';
+  clearExpired(table, dateType, retentionInDays, periodType = 'calendar') {
     // eslint-disable-next-line max-len
-    logger.log('info', `deleting ${table} rows where ${dateType} is older than ${retentionDays} ${periodType} days...`);
+    logger.log('info', `deleting ${table} rows where ${dateType} is older than ${retentionInDays} ${periodType} days...`);
 
-    const startDate = this.retentionCalculator.getRetentionStartDate(retentionDays, periodType, moment());
+    const startDate = this.retentionCalculator.getRetentionStartDate(retentionInDays, periodType, moment());
     const query = this.#deleteQueryBuilder(table, dateType, startDate);
 
     return this.knex.raw(query);
@@ -82,7 +82,11 @@ exports.rollback = async () => {
 };
 
 exports.clearExpired = async (table, dateColumn, retentionDays, periodType) => {
-  const retentionCalculator = new DataRetentionWindowCalculator();
-  const db = new exports.DatabaseManager(config.serviceName, retentionCalculator, config.latestMigration);
-  await db.clearExpired(table, dateColumn, retentionDays, periodType);
+  try {
+    const retentionCalculator = new DataRetentionWindowCalculator();
+    const db = new exports.DatabaseManager(config.serviceName, retentionCalculator, config.latestMigration);
+    await db.clearExpired(table, dateColumn, retentionDays, periodType);
+  } catch (error) {
+    logger.error(error.message);
+  }
 };

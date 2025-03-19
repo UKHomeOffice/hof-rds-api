@@ -2,7 +2,7 @@
   {
     "tableName": "applicants",
     "modelName": "postgres-model",
-    "additionalGetResources": ["username", "keycloak_uuid"],
+    "additionalGetResources": ["username"],
     "selectableProps": ["*"]
   },
   {
@@ -11,6 +11,6 @@
     "additionalGetResources": ["applicant_id"],
     "selectableProps": ["*"],
     "dataRetentionPeriodType": "calendar",
-    "dataRetentionInDays": "187"
+    "dataRetentionInDays": "180"
   }
 ]

@@ -6,6 +6,7 @@ exports.up = function(knex) {
     table.string('licence_type').notNullable();
     table.json('session').notNullable();
     table.integer('status_id').unsigned().notNullable().references('status_id').inTable('application_status');
+    table.string('status_message');
     table.timestamps(true, true);
     table.timestamp('submitted_at');
     table.integer('icasework_case_id');
