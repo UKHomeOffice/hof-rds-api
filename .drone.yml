@@ -51,8 +51,6 @@ steps:
         path: /root/.dockersock
     when:
       event: [push, pull_request]
-    depends_on:
-      - clone_repos
 
   - name: setup
     <<: *node_image
