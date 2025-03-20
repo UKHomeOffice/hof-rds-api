@@ -25,8 +25,7 @@ exports.DatabaseManager = class DatabaseManager {
           return resolve();
         }
         const { tableName, dataRetentionPeriodType, dataRetentionInDays } = table;
-        // eslint-disable-next-line
-        return this.clearExpired(tableName, dateType = 'created_at', dataRetentionInDays, dataRetentionPeriodType)
+        return this.clearExpired(tableName, dataRetentionInDays, dataRetentionPeriodType)
           .then(resolve)
           .catch(reject);
       });
@@ -52,7 +51,7 @@ exports.DatabaseManager = class DatabaseManager {
     return await knexMigrate('rollback', log);
   }
 
-  clearExpired(table, dateType, retentionInDays, periodType = 'calendar') {
+  clearExpired(table, retentionInDays, periodType = 'calendar', dateType = 'created_at') {
     // eslint-disable-next-line max-len
     logger.log('info', `deleting ${table} rows where ${dateType} is older than ${retentionInDays} ${periodType} days...`);
 
@@ -81,11 +80,11 @@ exports.rollback = async () => {
   await db.rollback();
 };
 
-exports.clearExpired = async (table, dateColumn, retentionDays, periodType) => {
+exports.clearExpired = async (table, retentionDays, periodType, dateColumn) => {
   try {
     const retentionCalculator = new DataRetentionWindowCalculator();
     const db = new exports.DatabaseManager(config.serviceName, retentionCalculator, config.latestMigration);
-    await db.clearExpired(table, dateColumn, retentionDays, periodType);
+    await db.clearExpired(table, retentionDays, periodType, dateColumn);
   } catch (error) {
     logger.error(error.message);
   }
