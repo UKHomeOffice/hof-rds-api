@@ -109,6 +109,6 @@ exports.clearExpired = async (table, retentionDays, periodType, submitStatus, da
     await db.clearExpired(table, retentionDays, periodType, submitStatus, dateType);
   } catch (error) {
     logger.error(error.message);
-    throw error
+    throw error;
   }
 };
