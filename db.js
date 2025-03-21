@@ -24,8 +24,21 @@ exports.DatabaseManager = class DatabaseManager {
         if (!table.dataRetentionInDays) {
           return resolve();
         }
-        const { tableName, dataRetentionPeriodType, dataRetentionInDays } = table;
-        return this.clearExpired(tableName, dataRetentionInDays, dataRetentionPeriodType)
+        const {
+          tableName,
+          dataRetentionPeriodType,
+          dataRetentionInDays,
+          removeSubmitStatus,
+          dataRetentionDateType
+        } = table;
+
+        return this.clearExpired(
+          tableName,
+          dataRetentionInDays,
+          dataRetentionPeriodType,
+          removeSubmitStatus,
+          dataRetentionDateType
+        )
           .then(resolve)
           .catch(reject);
       });
@@ -51,19 +64,28 @@ exports.DatabaseManager = class DatabaseManager {
     return await knexMigrate('rollback', log);
   }
 
-  clearExpired(table, retentionInDays, periodType = 'calendar', dateType = 'created_at') {
+  async clearExpired(table, retentionInDays, periodType = 'calendar', submitStatus = 'all', dateType = 'created_at') {
     // eslint-disable-next-line max-len
-    logger.log('info', `deleting ${table} rows where ${dateType} is older than ${retentionInDays} ${periodType} days...`);
+    logger.log('info', `Clearing ${submitStatus} ${table} where ${dateType} is older than ${retentionInDays} ${periodType} days...`);
 
     const startDate = this.retentionCalculator.getRetentionStartDate(retentionInDays, periodType, moment());
-    const query = this.#deleteQueryBuilder(table, dateType, startDate);
+    const query = this.#deleteQueryBuilder(table, dateType, startDate, submitStatus);
 
-    return this.knex.raw(query);
+    try {
+      await this.knex.raw(query);
+    } catch (error) {
+      throw error;
+    }
   }
 
-  #deleteQueryBuilder(table, dateType, startDate) {
+  #deleteQueryBuilder(table, dateType, startDate, submitStatus) {
     // delete data older than start of data retention window
     // eslint-disable-next-line max-len
+    if (submitStatus === 'unsubmitted') {
+      return `DELETE from ${table} WHERE ${dateType} < '${startDate}' AND submitted_at IS NULL`;
+    } else if (submitStatus === 'submitted') {
+      return `DELETE from ${table} WHERE ${dateType} < '${startDate}' AND submitted_at IS NOT NULL`;
+    }
     return `DELETE FROM ${table} WHERE ${dateType} < '${startDate}'`;
   }
 };
@@ -80,12 +102,13 @@ exports.rollback = async () => {
   await db.rollback();
 };
 
-exports.clearExpired = async (table, retentionDays, periodType, dateColumn) => {
+exports.clearExpired = async (table, retentionDays, periodType, submitStatus, dateType) => {
   try {
     const retentionCalculator = new DataRetentionWindowCalculator();
     const db = new exports.DatabaseManager(config.serviceName, retentionCalculator, config.latestMigration);
-    await db.clearExpired(table, retentionDays, periodType, dateColumn);
+    await db.clearExpired(table, retentionDays, periodType, submitStatus, dateType);
   } catch (error) {
     logger.error(error.message);
+    throw error
   }
 };
