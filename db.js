@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 
 const config = require('./config');
 const moment = require('moment');
@@ -19,7 +20,16 @@ exports.DatabaseManager = class DatabaseManager {
   }
 
   deleteOldTableData() {
-    const tablesToClear = this.tableData.map(table => {
+    let tablesToProcess = [];
+    for (const table of this.tableData) {
+      tablesToProcess.push(table);
+      const { customCronJobs } = table;
+      if (customCronJobs && Array.isArray(customCronJobs)) {
+        tablesToProcess = [...tablesToProcess, ...customCronJobs];
+      }
+    }
+
+    const tablesToClear = tablesToProcess.map(table => {
       return new Promise((resolve, reject) => {
         if (!table.dataRetentionInDays) {
           return resolve();
@@ -28,7 +38,7 @@ exports.DatabaseManager = class DatabaseManager {
           tableName,
           dataRetentionPeriodType,
           dataRetentionInDays,
-          removeSubmitStatus,
+          dataRetentionFilter,
           dataRetentionDateType
         } = table;
 
@@ -36,7 +46,7 @@ exports.DatabaseManager = class DatabaseManager {
           tableName,
           dataRetentionInDays,
           dataRetentionPeriodType,
-          removeSubmitStatus,
+          dataRetentionFilter,
           dataRetentionDateType
         )
           .then(resolve)
@@ -64,12 +74,11 @@ exports.DatabaseManager = class DatabaseManager {
     return await knexMigrate('rollback', log);
   }
 
-  async clearExpired(table, retentionInDays, periodType = 'calendar', submitStatus = 'all', dateType = 'created_at') {
-    // eslint-disable-next-line max-len
-    logger.log('info', `Clearing ${submitStatus} ${table} where ${dateType} is older than ${retentionInDays} ${periodType} days...`);
+  async clearExpired(table, retentionInDays, periodType = 'calendar', retentionFilter = 'all', dateType = 'created_at') {
+    logger.log('info', `Clearing ${retentionFilter} ${table} where ${dateType} is older than ${retentionInDays} ${periodType} days...`);
 
     const startDate = this.retentionCalculator.getRetentionStartDate(retentionInDays, periodType, moment());
-    const query = this.#deleteQueryBuilder(table, dateType, startDate, submitStatus);
+    const query = this.#deleteQueryBuilder(table, dateType, startDate, retentionFilter);
 
     try {
       await this.knex.raw(query);
@@ -78,12 +87,12 @@ exports.DatabaseManager = class DatabaseManager {
     }
   }
 
-  #deleteQueryBuilder(table, dateType, startDate, submitStatus) {
+  #deleteQueryBuilder(table, dateType, startDate, retentionFilter) {
     // delete data older than start of data retention window
     // eslint-disable-next-line max-len
-    if (submitStatus === 'unsubmitted') {
+    if (retentionFilter === 'unsubmitted') {
       return `DELETE from ${table} WHERE ${dateType} < '${startDate}' AND submitted_at IS NULL`;
-    } else if (submitStatus === 'submitted') {
+    } else if (retentionFilter === 'submitted') {
       return `DELETE from ${table} WHERE ${dateType} < '${startDate}' AND submitted_at IS NOT NULL`;
     }
     return `DELETE FROM ${table} WHERE ${dateType} < '${startDate}'`;
@@ -102,11 +111,11 @@ exports.rollback = async () => {
   await db.rollback();
 };
 
-exports.clearExpired = async (table, retentionDays, periodType, submitStatus, dateType) => {
+exports.clearExpired = async (table, retentionDays, periodType, retentionFilter, dateType) => {
   try {
     const retentionCalculator = new DataRetentionWindowCalculator();
     const db = new exports.DatabaseManager(config.serviceName, retentionCalculator, config.latestMigration);
-    await db.clearExpired(table, retentionDays, periodType, submitStatus, dateType);
+    await db.clearExpired(table, retentionDays, periodType, retentionFilter, dateType);
   } catch (error) {
     logger.error(error.message);
     throw error;

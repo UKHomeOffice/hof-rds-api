@@ -11,6 +11,14 @@
     "additionalGetResources": ["applicant_id"],
     "selectableProps": ["*"],
     "dataRetentionPeriodType": "calendar",
-    "dataRetentionInDays": "180"
+    "dataRetentionInDays": "180",
+    "customCronJobs": [
+      {
+        "tableName": "applications",
+        "dataRetentionPeriodType": "business",
+        "dataRetentionInDays": "5",
+        "dataRetentionFilter": "unsubmitted"
+      }
+    ]
   }
 ]

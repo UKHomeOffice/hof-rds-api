@@ -4,6 +4,7 @@ const config = require('./config');
 const Router = require('./router');
 const DB = require('./db').DatabaseManager;
 const DataRetentionWindowCalculator = require('./lib/data_retention_window_calculator');
+const { scheduleCustomCronJobs } = require('./lib/schedule-custom-cron');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
@@ -56,7 +57,11 @@ const setupDB = async expressApp => {
 
 setupDB(app);
 // run once a day at midnight
-cron.schedule('0 0 * * *', () => db.deleteOldTableData());
+cron.schedule('* * * * *', () => db.deleteOldTableData());
+// Schedule any additional custom jobs required by service table config
+// for(const table of dbTablesConfig) {
+//   scheduleCustomCronJobs(table, db);
+// }
 // run once on the 1st of every month
 cron.schedule('0 0 1 * *', retentionCalculator.updateBankHolidaySheet);
 
