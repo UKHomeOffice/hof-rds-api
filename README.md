@@ -96,15 +96,17 @@ hof-rds-api has funtionality to remove expired records from database tables base
 
 Values can be set per table to configure deletion jobs. A single job can be added per table in its configuring object, and if required, additional jobs can be added as an array `customCronJobs`.
 
+The cron schedule for deletion and bank holidaye update jobs can be set as environment variables as outlined above in [Env vars](#env-vars) or left as defaults in `config.js`.
+
 ### Deletion job configuration
 
 Required values must be configured per job. Optional values can be set or left to default.
 
-`tableName`: The name of the table to run the job for. If using `customCronJobs` set this individually for each custom job. Required value.
-`dataRetentionPeriodType`: Calculate which records to retain based period type - optionally "calendar" or "business". Defaults to "calendar".
-`dataRetentionInDays`: The number of days of the chosen period back from the current date to retain records from. Required value.
-`dataRetentionDateType`: The timestamp database column used to determine if a record is in the retention period. Defaults to `created_at`.
-`dataRetentionFilter`: Remove only records where the status of the record is "submitted" or "unsubmmited". Defaults to 'all' (both submitted and unsubmitted will be removed).
+- `tableName`: The name of the table to run the job for. If using `customCronJobs` set this individually for each custom job. Required value.
+- `dataRetentionPeriodType`: Calculate which records to retain based period type - optionally "calendar" or "business". Defaults to "calendar".
+- `dataRetentionInDays`: The number of days of the chosen period type for which data should be retained, calculated backwards from the current date and time. Required value.
+- `dataRetentionDateType`: The timestamp database column used to determine if a record is in the retention period. Defaults to `created_at`.
+- `dataRetentionFilter`: Defines the subset of records to process based on their submission status. Remove only records where the status of the record is "submitted" or "unsubmmited". Defaults to "all" (both submitted and unsubmitted will be removed).
 
 Example:
 
@@ -136,4 +138,4 @@ Example:
 ]
 ```
 
-cron schedules for these jobs can be set as environment variables as outlined above in [Env vars](#env-vars) or left as defaults in `config.js`.
+> N.B. if a database table does not have a `submitted_at` column setting the `dataRetentionFilter` for that table's config will cause a SQL query error.
