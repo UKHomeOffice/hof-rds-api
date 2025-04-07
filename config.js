@@ -8,5 +8,9 @@ module.exports = {
   https_port: process.env.HTTPS_PORT,
   requestTimeout: +process.env.REQUEST_TIMEOUT || 1000,
   serviceName: process.env.SERVICE_NAME,
-  latestMigration: process.env.LATEST_MIGRATION
+  latestMigration: process.env.LATEST_MIGRATION,
+  cronSchedules: {
+    deleteOldTableData: process.env.DELETE_EXPIRED_SCHEDULE || '0 0 * * *',
+    updateBankHolidaySheet: process.env.UPDATE_BANK_HOLIDAYS_SCHEDULE || '0 0 1 * *'
+  }
 };

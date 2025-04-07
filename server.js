@@ -55,9 +55,10 @@ const setupDB = async expressApp => {
 };
 
 setupDB(app);
-// run once a day at midnight
-cron.schedule('0 0 * * *', db.deleteOldTableData);
-// run once on the 1st of every month
-cron.schedule('0 0 1 * *', retentionCalculator.updateBankHolidaySheet);
+
+// Cron
+const { cronSchedules } = config;
+cron.schedule(cronSchedules.deleteOldTableData, () => db.deleteOldTableData());
+cron.schedule(cronSchedules.updateBankHolidaySheet, retentionCalculator.updateBankHolidaySheet);
 
 module.exports = app;

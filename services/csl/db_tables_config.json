@@ -1,0 +1,24 @@
+[
+  {
+    "tableName": "applicants",
+    "modelName": "postgres-model",
+    "additionalGetResources": ["username"],
+    "selectableProps": ["*"]
+  },
+  {
+    "tableName": "applications",
+    "modelName": "postgres-model",
+    "additionalGetResources": ["applicant_id"],
+    "selectableProps": ["*"],
+    "dataRetentionPeriodType": "calendar",
+    "dataRetentionInDays": "180",
+    "customCronJobs": [
+      {
+        "tableName": "applications",
+        "dataRetentionPeriodType": "business",
+        "dataRetentionInDays": "5",
+        "dataRetentionFilter": "unsubmitted"
+      }
+    ]
+  }
+]

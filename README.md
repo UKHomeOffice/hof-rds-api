@@ -17,6 +17,8 @@ You can set the following to specific how you want your results to look:
 - `LATEST_MIGRATION` - This is the latest migration you wanted automated migrations to run up to based on the migration names in the relevant service folder under './services'
 - `CLIENT` - This is the database client type. This defaults to postgresql.
 - `DB_HOST`,`DB_USER`,`DB_PASS`,`DB_NAME` - These are production credentials for accessing the relevant database.
+- `DELETE_EXPIRED_SCHEDULE` - A cron expression to enable a custom schedule to run expired record removal on per service. Defaults to `'0 0 * * *'`
+- `UPDATE_BANK_HOLIDAYS_SCHEDULE` - A cron expression to enable a custom schedule to update the bank holiday JSON values. Defaults to `'0 0 1 * *'`
 
 ## Local Setup
 The migrations and seeds folders are used by knex to setup a local DB with dummy information for testing the service. These are not used in production where it is assumed a separate DB is setup for knex to connect to that is already setup.
@@ -69,7 +71,7 @@ yarn db:local:migrate
 ### Dependencies <a name="dependencies"></a>
 You will need to have the following installed:
 
-[Node JS](https://nodejs.org/en/download/releases/) ( LTS Hydrogen v18.x )
+[Node JS](https://nodejs.org/en/download/releases/) ( LTS Hydrogen v18.x or greater )
 
 [NPM](https://www.npmjs.com/get-npm) ( v8.x )
 
@@ -87,3 +89,53 @@ Then to run the service use:
 
 With the server running you can run the main app with save and return lookup UI functionality.
 See details of how to do this in [modern slavery](https://github.com/UKHomeOffice/modern-slavery) application
+
+## Scheduled jobs
+
+hof-rds-api has funtionality to remove expired records from database tables based on configuration set per service in its `db_tables_config.json`.
+
+Values can be set per table to configure deletion jobs. A single job can be added per table in its configuring object, and if required, additional jobs can be added as an array `customCronJobs`.
+
+The cron schedule for deletion and bank holidaye update jobs can be set as environment variables as outlined above in [Env vars](#env-vars) or left as defaults in `config.js`.
+
+### Deletion job configuration
+
+Required values must be configured per job. Optional values can be set or left to default.
+
+- `tableName`: The name of the table to run the job for. If using `customCronJobs` set this individually for each custom job. Required value.
+- `dataRetentionPeriodType`: Calculate which records to retain based period type - optionally "calendar" or "business". Defaults to "calendar".
+- `dataRetentionInDays`: The number of days of the chosen period type for which data should be retained, calculated backwards from the current date and time. Required value.
+- `dataRetentionDateType`: The timestamp database column used to determine if a record is in the retention period. Defaults to `created_at`.
+- `dataRetentionFilter`: Defines the subset of records to process based on their submission status. Remove only records where the status of the record is "submitted" or "unsubmmited". Defaults to "all" (both submitted and unsubmitted will be removed).
+
+Example:
+
+```json
+[
+  {
+    "tableName": "applicants",
+    "modelName": "postgres-model",
+    "additionalGetResources": ["username"],
+    "selectableProps": ["*"]
+  },
+  {
+    "tableName": "applications",
+    "modelName": "postgres-model",
+    "additionalGetResources": ["applicant_id"],
+    "selectableProps": ["*"],
+    "dataRetentionPeriodType": "calendar",
+    "dataRetentionInDays": "180",
+    "customCronJobs": [
+      {
+        "tableName": "applications",
+        "dataRetentionPeriodType": "business",
+        "dataRetentionInDays": "5",
+        "dataRetentionDateType": "updated_at",
+        "dataRetentionFilter": "unsubmitted"
+      }
+    ]
+  }
+]
+```
+
+> N.B. if a database table does not have a `submitted_at` column setting the `dataRetentionFilter` for that table's config will cause a SQL query error.

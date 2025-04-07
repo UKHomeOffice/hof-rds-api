@@ -1,6 +1,7 @@
 'use strict';
 
 const DataRetentionWindowCalculator = require('./lib/data_retention_window_calculator');
+const { clearExpired } = require('./db');
 
 const setExpiryToRecords = (records, days, type) => {
   const calc = new DataRetentionWindowCalculator();
@@ -117,6 +118,15 @@ module.exports = (app, props) => {
 
   app.delete(`/${tableName}/:id`, (req, res, next) => {
     return model.delete(req.params.id)
+      .then(() => {
+        return res.sendStatus(200);
+      })
+      .catch(next);
+  });
+
+  app.delete(`/${tableName}/clear/:status/:dateType/older/:days/:periodType`, (req, res, next) => {
+    const { status, dateType, days, periodType } = req.params;
+    return clearExpired(tableName, days, periodType, status, dateType)
       .then(() => {
         return res.sendStatus(200);
       })
