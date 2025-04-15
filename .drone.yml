@@ -189,8 +189,8 @@ steps:
         IGNORE_UNFIXED: false
         ALLOW_CVE_LIST_FILE: hof-services-config/infrastructure/trivy/.trivyignore.yaml
     commands:
-      - trivy image --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL --dependency-tree --scanners vuln $${IMAGE_REPO}:$${DRONE_COMMIT_SHA}
-      - trivy repo --branch ${DRONE_SOURCE_BRANCH} --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL --dependency-tree --scanners vuln https://github.com/UKHomeOffice/hof-rds-api 
+      - trivy image --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL --dependency-tree --scanners vuln --ignorefile ${ALLOW_CVE_LIST_FILE}  $${IMAGE_REPO}:$${DRONE_COMMIT_SHA}
+      - trivy repo --branch ${DRONE_SOURCE_BRANCH} --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL --dependency-tree --scanners vuln --ignorefile ${ALLOW_CVE_LIST_FILE} https://github.com/UKHomeOffice/hof-rds-api 
     volumes:
       - name: dockersock
         path: /var/run
