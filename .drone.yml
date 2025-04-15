@@ -6,6 +6,8 @@ type: kubernetes
 environment:
   IMAGE_URL: quay.io/ukhomeofficedigital
   IMAGE_REPO: hof-rds-api
+  # Please update semantic versioning whenever there are updates and changes.
+  VERSION_TAG: 3.0.0
 
 node_image: &node_image
   pull: if-not-exists
@@ -95,6 +97,7 @@ steps:
     commands:
       - n=0; while [ "$n" -lt 60 ] && [ ! docker stats --no-stream ]; do n=$(( n + 1 )); sleep 1; done
       - docker build --no-cache -t $${IMAGE_REPO}:$${DRONE_COMMIT_SHA} .
+      - docker tag $${IMAGE_REPO}:$${DRONE_COMMIT_SHA} $${IMAGE_URL}/$${IMAGE_REPO}:$${VERSION_TAG}
     volumes:
       - name: dockersock
         path: /var/run
