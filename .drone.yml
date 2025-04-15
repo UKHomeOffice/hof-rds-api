@@ -102,20 +102,6 @@ steps:
       branch: master
       event: [push, pull_request]
 
-  - name: image_to_quay
-    pull: if-not-exists
-    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
-    environment:
-      DOCKER_PASSWORD:
-        from_secret: DOCKER_PASSWORD
-    commands:
-    - docker login -u="ukhomeofficedigital+hof_rds_api" -p=$${DOCKER_PASSWORD} quay.io
-    - docker tag $${IMAGE_REPO}:$${DRONE_COMMIT_SHA} $${IMAGE_URL}/$${IMAGE_REPO}:$${DRONE_COMMIT_SHA}
-    - docker push $${IMAGE_URL}/$${IMAGE_REPO}:$${DRONE_COMMIT_SHA}
-    when:
-      branch: master
-      event: [push, pull_request]
-
   # Trivy Security Scannner for scanning nodejs packages in Yarn
   - name: scan_node_packages
     pull: always
@@ -131,9 +117,26 @@ steps:
       IGNORE_UNFIXED: false
       ALLOW_CVE_LIST_FILE: hof-services-config/infrastructure/trivy/.trivyignore.yaml
     commands:
-      - trivy image --severity MEDIUM,HIGH,CRITICAL --dependency-tree --scanners vuln $${IMAGE_URL}/$${IMAGE_REPO}:$${DRONE_COMMIT_SHA}
-      - trivy repo --branch ${DRONE_SOURCE_BRANCH} --severity MEDIUM,HIGH,CRITICAL --dependency-tree --scanners vuln https://github.com/UKHomeOffice/hof-rds-api 
+      - trivy image --severity MEDIUM,HIGH,CRITICAL --dependency-tree --scanners vuln $${IMAGE_REPO}:$${DRONE_COMMIT_SHA}
+      - trivy repo --branch ${DRONE_SOURCE_BRANCH} --severity MEDIUM,HIGH,CRITICAL --dependency-tree --scanners vuln https://github.com/UKHomeOffice/hof-rds-api
+    volumes:
+      - name: dockersock
+        path: /var/run 
     when:
+      event: [push, pull_request]
+
+  - name: image_to_quay
+    pull: if-not-exists
+    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
+    environment:
+      DOCKER_PASSWORD:
+        from_secret: DOCKER_PASSWORD
+    commands:
+    - docker login -u="ukhomeofficedigital+hof_rds_api" -p=$${DOCKER_PASSWORD} quay.io
+    - docker tag $${IMAGE_REPO}:$${DRONE_COMMIT_SHA} $${IMAGE_URL}/$${IMAGE_REPO}:$${DRONE_COMMIT_SHA}
+    - docker push $${IMAGE_URL}/$${IMAGE_REPO}:$${DRONE_COMMIT_SHA}
+    when:
+      branch: master
       event: [push, pull_request]
 
   # CRON job steps that runs security scans using Snyk & Anchore
