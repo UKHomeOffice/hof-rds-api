@@ -97,7 +97,6 @@ steps:
     commands:
       - n=0; while [ "$n" -lt 60 ] && [ ! docker stats --no-stream ]; do n=$(( n + 1 )); sleep 1; done
       - docker build --no-cache -t $${IMAGE_REPO}:$${DRONE_COMMIT_SHA} .
-      - docker tag $${IMAGE_REPO}:$${DRONE_COMMIT_SHA} $${IMAGE_URL}/$${IMAGE_REPO}:$${VERSION_TAG}
     volumes:
       - name: dockersock
         path: /var/run
@@ -136,8 +135,8 @@ steps:
         from_secret: DOCKER_PASSWORD
     commands:
     - docker login -u="ukhomeofficedigital+hof_rds_api" -p=$${DOCKER_PASSWORD} quay.io
-    - docker tag $${IMAGE_REPO}:$${DRONE_COMMIT_SHA} $${IMAGE_URL}/$${IMAGE_REPO}:$${DRONE_COMMIT_SHA}
-    - docker push $${IMAGE_URL}/$${IMAGE_REPO}:$${DRONE_COMMIT_SHA}
+    - docker tag $${IMAGE_REPO}:$${DRONE_COMMIT_SHA} $${IMAGE_URL}/$${IMAGE_REPO}:$${VERSION_TAG}
+    - docker push $${IMAGE_URL}/$${IMAGE_REPO}:$${VERSION_TAG}
     when:
       branch: master
       event: [push, pull_request]
