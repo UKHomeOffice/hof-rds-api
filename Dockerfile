@@ -1,7 +1,6 @@
-FROM node:20.18.0-alpine3.20@sha256:d504f23acdda979406cf3bdbff0dff7933e5c4ec183dda404ed24286c6125e60
+FROM quay.io/ukhomeofficedigital/hof-nodejs:20.19.0-alpine3.21@sha256:aad584fa26cb2838739527166c8965d95d0d2d9b88cfd5e3e2d3b8647ae03101
 USER root
 
-USER root
 # Update packages as a result of Trivy security vulnerability checks
 RUN apk update && apk upgrade --no-cache
 
