@@ -113,14 +113,11 @@ steps:
         cpu: 1000
         memory: 1024Mi
     environment:
-      IMAGE_NAME: $${IMAGE_URL}/$${IMAGE_REPO}:$${DRONE_COMMIT_SHA}
-      SEVERITY: MEDIUM,HIGH,CRITICAL  --dependency-tree
       FAIL_ON_DETECTION: false
       IGNORE_UNFIXED: false
-      ALLOW_CVE_LIST_FILE: hof-services-config/infrastructure/trivy/.trivyignore.yaml
     commands:
-      - trivy image --severity MEDIUM,HIGH,CRITICAL --dependency-tree --scanners vuln --ignorefile $${ALLOW_CVE_LIST_FILE} $${IMAGE_REPO}:$${DRONE_COMMIT_SHA}
-      - trivy repo --branch ${DRONE_SOURCE_BRANCH} --severity MEDIUM,HIGH,CRITICAL --dependency-tree --scanners vuln --ignorefile $${ALLOW_CVE_LIST_FILE} https://github.com/UKHomeOffice/hof-rds-api
+      - trivy image --severity MEDIUM,HIGH,CRITICAL --dependency-tree --scanners vuln --ignorefile hof-services-config/infrastructure/trivy/.trivyignore.yaml $${IMAGE_REPO}:$${DRONE_COMMIT_SHA}
+      - trivy repo --branch ${DRONE_SOURCE_BRANCH} --severity MEDIUM,HIGH,CRITICAL --dependency-tree --scanners vuln --ignorefile hof-services-config/infrastructure/trivy/.trivyignore.yaml https://github.com/UKHomeOffice/hof-rds-api
     volumes:
       - name: dockersock
         path: /var/run 
