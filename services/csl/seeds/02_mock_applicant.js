@@ -10,7 +10,7 @@ exports.seed = function (knex) {
         },
         {
           applicant_id: 2,
-          username: 'TEST-EXTERNAL_USER'
+          username: 'TEST-EXTERNAL-USER'
         },
         {
           applicant_id: 3,
