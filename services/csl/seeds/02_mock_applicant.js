@@ -6,15 +6,15 @@ exports.seed = function (knex) {
       return knex('applicants').insert([
         {
           applicant_id: 1,
-          username: 'test-approved'
+          username: 'TEST-APPROVED'
         },
         {
           applicant_id: 2,
-          username: 'test-external-user'
+          username: 'TEST-EXTERNAL_USER'
         },
         {
           applicant_id: 3,
-          username: 'test2-approved'
+          username: 'TEST2-APPROVED'
         }
       ]);
     });
