@@ -6,7 +6,15 @@ exports.seed = function (knex) {
       return knex('applicants').insert([
         {
           applicant_id: 1,
-          username: 'test-approved'
+          username: 'TEST-APPROVED'
+        },
+        {
+          applicant_id: 2,
+          username: 'TEST-EXTERNAL-USER'
+        },
+        {
+          applicant_id: 3,
+          username: 'TEST2-APPROVED'
         }
       ]);
     });
