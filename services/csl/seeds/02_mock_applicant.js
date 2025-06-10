@@ -1,8 +1,10 @@
 exports.seed = function (knex) {
-  // Deletes ALL existing entries
-  return knex('applicants').del()
+  return knex('applicants')
+    // Delete applicants not referenced in applications
+    .whereNotIn('applicant_id', knex('applications').select('applicant_id'))
+    .del()
     .then(function () {
-      // Inserts seed entries
+      // Insert or update applicants
       return knex('applicants').insert([
         {
           applicant_id: 1,
@@ -16,6 +18,8 @@ exports.seed = function (knex) {
           applicant_id: 3,
           username: 'TEST2-APPROVED'
         }
-      ]);
+      ])
+        .onConflict('applicant_id')
+        .merge();
     });
 };

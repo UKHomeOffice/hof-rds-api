@@ -1,8 +1,10 @@
 exports.seed = function (knex) {
-  // Deletes ALL existing entries
-  return knex('application_status').del()
+  return knex('application_status')
+    // Delete application status not referenced in applications
+    .whereNotIn('status_id', knex('applications').select('status_id'))
+    .del()
     .then(function () {
-      // Inserts seed entries
+      // Insert or update applicantion status
       return knex('application_status').insert([
         {
           status_id: 1,
@@ -24,6 +26,8 @@ exports.seed = function (knex) {
           status_name: 'error',
           description: 'An error occured during application submission'
         }
-      ]);
+      ])
+        .onConflict('status_id')
+        .merge();
     });
 };
