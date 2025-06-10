@@ -4,7 +4,7 @@ exports.seed = function (knex) {
     .whereNotIn('status_id', knex('applications').select('status_id'))
     .del()
     .then(function () {
-      // Insert or update applicantion status
+      // Insert or update application status
       return knex('application_status').insert([
         {
           status_id: 1,
