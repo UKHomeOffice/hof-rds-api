@@ -160,15 +160,18 @@ the semantic version (e.g., 1.0.0)
 a content-addressable digest (@sha256:...)
 
 The complete image reference can be used in the format:
-'quay.io/yourorg/your-image:1.0.0@sha256:<digest>'
+**quay.io/yourorg/your-image:1.0.0@sha256:<digest>**
 
 **Tagging for Releases**
+
 To release a new version, follow these steps on the master branch only:
 
 **Make sure you're on the master branch**
+
 git checkout master
 
 **Create and push a semantic version tag**
+
 git tag 1.2.3
 git push origin 1.2.3
 
