@@ -175,6 +175,32 @@ git checkout master
 git tag 1.2.3
 git push origin 1.2.3
 
+**Alternatively,** We can create Tags from Git Hosting UI instead of CLI commands
+
+We can also create tags directly from Git hosting provider’s web interface e.g., GitHub
+
+Go to the Releases or Tags section of the repository
+
+Click "Create a new release" or "Add tag"
+
+Use the proper version format (e.g., 1.2.3) and make sure it points to the master branch
+
+This is a convenient way for team members to trigger a release without using the command line.
+
+
+###  Release Tagging Guidelines for Contributors
+
+When creating a new Git tag (either via CLI or Git UI), please follow these practices to ensure clear, traceable, and production-ready releases:
+
+Attach release notes or changelogs to a tag
+
+Link to issues, PRs, and milestones
+
+Create pre-releases for testing before full deployment
+
+This turns a simple tag into a full-fledged release artifact.
+
+
 **Important:**
 
 Use valid Semantic Versioning format: v<MAJOR>.<MINOR>.<PATCH> (e.g., 1.0.0, 2.3.1)
