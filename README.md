@@ -145,7 +145,7 @@ Example:
 
 This repository uses Git tags to trigger the release pipeline, build container images, and push them to the Quay.io container registry.
 
-### Workflow Overview
+#### Workflow Overview
 
 Developers push a Git tag following Semantic Versioning (e.g., 1.0.0).
 
@@ -162,13 +162,13 @@ a content-addressable digest (@sha256:...)
 The complete image reference can be used in the format:
 'quay.io/yourorg/your-image:1.0.0@sha256:<digest>'
 
-### Tagging for Releases
+**Tagging for Releases**
 To release a new version, follow these steps on the master branch only:
 
-### Make sure you're on the master branch
+**Make sure you're on the master branch**
 git checkout master
 
-### Create and push a semantic version tag
+**Create and push a semantic version tag**
 git tag 1.2.3
 git push origin 1.2.3
 
@@ -178,7 +178,7 @@ Use valid Semantic Versioning format: v<MAJOR>.<MINOR>.<PATCH> (e.g., 1.0.0, 2.3
 
 The Drone CI pipeline is configured to only trigger on tags created from the master branch.
 
-### Reasong for Usage of image:tag@digest
+#### Reason for Usage of image:tag@digest
 
 The format image:tag@digest combines:
 
@@ -194,4 +194,4 @@ The digest SHA (sha256:<digest>) is a cryptographic hash that uniquely identifie
 
 'Traceability' – You can trace exactly which build and source it came from.
 
-Security – Prevents tampering or tag overwriting in registries.
+'Security' – Prevents tampering or tag overwriting in registries.
