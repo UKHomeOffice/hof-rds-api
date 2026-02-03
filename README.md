@@ -140,6 +140,62 @@ Example:
 
 > N.B. if a database table does not have a `submitted_at` column setting the `dataRetentionFilter` for that table's config will cause a SQL query error.
 
+### ASC Retention (Set & Deletion)
+
+The ASC service uses dual retention windows for the `saved_applications` table, partitioned by submission status and anchored to different dates:
+
+- Unsubmitted: 5 business days from `created_at`.
+- Submitted: 30 business days from `submitted_at`.
+
+Configuration (services/asc/db_tables_config.json):
+
+```json
+[
+  {
+    "tableName": "saved_applications",
+    "modelName": "postgres-model",
+    "additionalGetResources": ["email"],
+    "selectableProps": ["*"],
+    "customCronJobs": [
+      {
+        "tableName": "saved_applications",
+        "dataRetentionPeriodType": "business",
+        "dataRetentionInDays": "5",
+        "dataRetentionFilter": "unsubmitted",
+        "dataRetentionDateType": "created_at"
+      },
+      {
+        "tableName": "saved_applications",
+        "dataRetentionPeriodType": "business",
+        "dataRetentionInDays": "30",
+        "dataRetentionFilter": "submitted",
+        "dataRetentionDateType": "submitted_at"
+      }
+    ]
+  }
+]
+```
+
+behaviour:
+
+- Set (POST):
+  - If `submitted_at` is absent or `null`: response `expires_at` = 5 business days from `created_at`.
+  - If `submitted_at` is present (ISO string): response `expires_at` = 30 business days from `submitted_at`.
+  - Note: `expires_at` is computed for the API response; it is not persisted.
+
+- Read/Update (GET/PATCH):
+  - Response includes computed `expires_at` following the same rules; no DB writes occur.
+
+- Deletion (Cron):
+  - `dataRetentionFilter: "unsubmitted"` job removes records older than 5 business days, anchored at `created_at`.
+  - `dataRetentionFilter: "submitted"` job removes records older than 30 business days, anchored at `submitted_at`.
+
+Client contract:
+
+- To move a record into the 30-day window, include `submitted_at` as an ISO timestamp (`new Date().toISOString()`).
+- If `submitted_at` is omitted or `null`, the record remains in the 5-day unsubmitted window.
+- Business-day calculations include UK bank holidays from `data/bank_holidays.json`.
+
 
 ## Git Tags and Release Workflow
 

@@ -4,8 +4,22 @@
     "modelName": "postgres-model",
     "additionalGetResources": ["email"],
     "selectableProps": ["*"],
-    "dataRetentionPeriodType": "business",
-    "dataRetentionInDays": "5"
+    "customCronJobs": [
+      {
+        "tableName": "saved_applications",
+        "dataRetentionPeriodType": "business",
+        "dataRetentionInDays": "5",
+        "dataRetentionFilter": "unsubmitted",
+        "dataRetentionDateType": "created_at"
+      },
+      {
+        "tableName": "saved_applications",
+        "dataRetentionPeriodType": "business",
+        "dataRetentionInDays": "30",
+        "dataRetentionFilter": "submitted",
+        "dataRetentionDateType": "submitted_at"
+      }
+    ]
   },
   {
     "tableName": "recruiters",

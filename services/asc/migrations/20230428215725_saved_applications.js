@@ -7,6 +7,7 @@ exports.up = function(knex) {
     table.string('email').notNullable();
     table.json('session').notNullable();
     table.timestamps(true, true);
+    table.timestamp('submitted_at');
   });
 };
 
