@@ -5,7 +5,7 @@ process.env.SERVICE_NAME = 'asc';
 const DataRetentionWindowCalculator = require('../../lib/data_retention_window_calculator');
 const DB = require('../../db').DatabaseManager;
 
-xdescribe('ASC service - Cron deletion windows', () => {
+describe('ASC service - Cron deletion windows', () => {
   let db;
   const retentionCalculator = new DataRetentionWindowCalculator();
 
