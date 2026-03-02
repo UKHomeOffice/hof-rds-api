@@ -99,22 +99,15 @@ module.exports = (app, props) => {
     if (!req.query.timestamp || !req.query.from) {
       return res.send({
         status: 400,
-        message:
-          "Please add a 'timestamp' (column name) and 'from' query to your request"
+        message: "Please add a 'timestamp' (column name) and 'from' query to your request"
       });
     }
-    return model
-      .getInTimeRange(req.query)
+    return model.getInTimeRange(req.query)
       .then(result => {
         let records = result;
 
         if (dataRetentionInDays || customCronJobs) {
-          records = setExpiryToRecords(
-            records,
-            dataRetentionInDays,
-            dataRetentionPeriodType,
-            customCronJobs
-          );
+          records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType, customCronJobs);
         }
         return res.json(records);
       })
@@ -122,8 +115,7 @@ module.exports = (app, props) => {
   });
 
   app.get(`/${tableName}/metrics`, (req, res, next) => {
-    return model
-      .getMetrics(req.query)
+    return model.getMetrics(req.query)
       .then(result => {
         return res.json(result);
       })
@@ -131,18 +123,12 @@ module.exports = (app, props) => {
   });
 
   app.get(`/${tableName}/:id`, (req, res, next) => {
-    return model
-      .get({ id: req.params.id })
+    return model.get({ id: req.params.id })
       .then(result => {
         let records = result;
 
         if (dataRetentionInDays || customCronJobs) {
-          records = setExpiryToRecords(
-            records,
-            dataRetentionInDays,
-            dataRetentionPeriodType,
-            customCronJobs
-          );
+          records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType, customCronJobs);
         }
         return res.json(records);
       })
@@ -152,18 +138,12 @@ module.exports = (app, props) => {
   if (additionalGetResources) {
     additionalGetResources.forEach(resource => {
       app.get(`/${tableName}/${resource}/:${resource}`, (req, res, next) => {
-        return model
-          .get({ [resource]: decodeParam(resource, req.params[resource]) })
+        return model.get({ [resource]: decodeParam(resource, req.params[resource]) })
           .then(result => {
             let records = result;
 
             if (dataRetentionInDays || customCronJobs) {
-              records = setExpiryToRecords(
-                records,
-                dataRetentionInDays,
-                dataRetentionPeriodType,
-                customCronJobs
-              );
+              records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType, customCronJobs);
             }
             return res.json(records);
           })
@@ -173,18 +153,12 @@ module.exports = (app, props) => {
   }
 
   app.post(`/${tableName}`, (req, res, next) => {
-    return model
-      .create(req.body)
+    return model.create(req.body)
       .then(result => {
         let records = result;
 
         if (dataRetentionInDays || customCronJobs) {
-          records = setExpiryToRecords(
-            records,
-            dataRetentionInDays,
-            dataRetentionPeriodType,
-            customCronJobs
-          );
+          records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType, customCronJobs);
         }
         return res.json(records);
       })
@@ -192,18 +166,12 @@ module.exports = (app, props) => {
   });
 
   app.patch(`/${tableName}/:id`, (req, res, next) => {
-    return model
-      .patch(req.params.id, req.body)
+    return model.patch(req.params.id, req.body)
       .then(result => {
         let records = result;
 
         if (dataRetentionInDays || customCronJobs) {
-          records = setExpiryToRecords(
-            records,
-            dataRetentionInDays,
-            dataRetentionPeriodType,
-            customCronJobs
-          );
+          records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType, customCronJobs);
         }
         return res.json(records);
       })
@@ -211,23 +179,19 @@ module.exports = (app, props) => {
   });
 
   app.delete(`/${tableName}/:id`, (req, res, next) => {
-    return model
-      .delete(req.params.id)
+    return model.delete(req.params.id)
       .then(() => {
         return res.sendStatus(200);
       })
       .catch(next);
   });
 
-  app.delete(
-    `/${tableName}/clear/:status/:dateType/older/:days/:periodType`,
-    (req, res, next) => {
-      const { status, dateType, days, periodType } = req.params;
-      return clearExpired(tableName, days, periodType, status, dateType)
-        .then(() => {
-          return res.sendStatus(200);
-        })
-        .catch(next);
-    }
-  );
+  app.delete(`/${tableName}/clear/:status/:dateType/older/:days/:periodType`, (req, res, next) => {
+    const { status, dateType, days, periodType } = req.params;
+    return clearExpired(tableName, days, periodType, status, dateType)
+      .then(() => {
+        return res.sendStatus(200);
+      })
+      .catch(next);
+  });
 };
