@@ -49,19 +49,14 @@ const setExpiryToRecords = (
 
     let days = defaultDays;
     let type = defaultType;
-    let anchorDate = record.created_at;
+    const anchorDate = isSubmitted ? record.submitted_at : record.created_at;
 
     if (isSubmitted && submittedJob) {
       days = parseInt(submittedJob.dataRetentionInDays, 10) || days;
       type = submittedJob.dataRetentionPeriodType || type;
-      anchorDate = record.submitted_at;
     } else if (!isSubmitted && unsubmittedJob) {
       days = parseInt(unsubmittedJob.dataRetentionInDays, 10) || days;
       type = unsubmittedJob.dataRetentionPeriodType || type;
-      anchorDate = record.created_at;
-    } else if (isSubmitted) {
-      // fall back to default window
-      anchorDate = record.submitted_at;
     }
 
     if (!days || !type || !anchorDate) {
@@ -72,6 +67,18 @@ const setExpiryToRecords = (
     record.expires_at = expiry;
     return record;
   });
+};
+
+const applyExpiryFromRetentionRules = (
+  records,
+  dataRetentionInDays,
+  dataRetentionPeriodType,
+  customCronJobs
+) => {
+  if (dataRetentionInDays || customCronJobs) {
+    return setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType, customCronJobs);
+  }
+  return records;
 };
 
 const decodeParam = (type, param) => {
@@ -103,15 +110,13 @@ module.exports = (app, props) => {
       });
     }
     return model.getInTimeRange(req.query)
-      .then(result => {
-        let records = result;
-
-        if (dataRetentionInDays || customCronJobs) {
-          records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType, customCronJobs);
-        }
-        return res.json(records);
-      })
-      .catch(next);
+      .then(result =>
+        res.json(applyExpiryFromRetentionRules(
+          result,
+          dataRetentionInDays,
+          dataRetentionPeriodType,
+          customCronJobs
+        ))).catch(next);
   });
 
   app.get(`/${tableName}/metrics`, (req, res, next) => {
@@ -124,58 +129,50 @@ module.exports = (app, props) => {
 
   app.get(`/${tableName}/:id`, (req, res, next) => {
     return model.get({ id: req.params.id })
-      .then(result => {
-        let records = result;
-
-        if (dataRetentionInDays || customCronJobs) {
-          records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType, customCronJobs);
-        }
-        return res.json(records);
-      })
-      .catch(next);
+      .then(result =>
+        res.json(applyExpiryFromRetentionRules(
+          result,
+          dataRetentionInDays,
+          dataRetentionPeriodType,
+          customCronJobs
+        ))).catch(next);
   });
 
   if (additionalGetResources) {
     additionalGetResources.forEach(resource => {
       app.get(`/${tableName}/${resource}/:${resource}`, (req, res, next) => {
         return model.get({ [resource]: decodeParam(resource, req.params[resource]) })
-          .then(result => {
-            let records = result;
-
-            if (dataRetentionInDays || customCronJobs) {
-              records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType, customCronJobs);
-            }
-            return res.json(records);
-          })
-          .catch(next);
+          .then(result =>
+            res.json(applyExpiryFromRetentionRules(
+              result,
+              dataRetentionInDays,
+              dataRetentionPeriodType,
+              customCronJobs
+            ))).catch(next);
       });
     });
   }
 
   app.post(`/${tableName}`, (req, res, next) => {
     return model.create(req.body)
-      .then(result => {
-        let records = result;
-
-        if (dataRetentionInDays || customCronJobs) {
-          records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType, customCronJobs);
-        }
-        return res.json(records);
-      })
-      .catch(next);
+      .then(result =>
+        res.json(applyExpiryFromRetentionRules(
+          result,
+          dataRetentionInDays,
+          dataRetentionPeriodType,
+          customCronJobs
+        ))).catch(next);
   });
 
   app.patch(`/${tableName}/:id`, (req, res, next) => {
     return model.patch(req.params.id, req.body)
-      .then(result => {
-        let records = result;
-
-        if (dataRetentionInDays || customCronJobs) {
-          records = setExpiryToRecords(records, dataRetentionInDays, dataRetentionPeriodType, customCronJobs);
-        }
-        return res.json(records);
-      })
-      .catch(next);
+      .then(result =>
+        res.json(applyExpiryFromRetentionRules(
+          result,
+          dataRetentionInDays,
+          dataRetentionPeriodType,
+          customCronJobs
+        ))).catch(next);
   });
 
   app.delete(`/${tableName}/:id`, (req, res, next) => {

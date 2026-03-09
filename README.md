@@ -140,7 +140,7 @@ Example:
 
 > N.B. if a database table does not have a `submitted_at` column setting the `dataRetentionFilter` for that table's config will cause a SQL query error.
 
-### ASC Retention (Set & Deletion)
+### ASC / BFIC (Border Force Integrity Check) Retention (Set & Deletion)
 
 The ASC service uses dual retention windows for the `saved_applications` table, partitioned by submission status and anchored to different dates:
 
