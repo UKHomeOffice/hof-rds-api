@@ -1,0 +1,12 @@
+apiVersion: v2
+name: hof-rds-api
+description: A Helm chart for deploying hof-rds-api
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - hof
+  - rds
+  - api
+maintainers:
+  - name: Home Office Digital

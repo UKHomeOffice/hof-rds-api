@@ -1,0 +1,38 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "hof-rds-api.fullname" . }}
+  labels:
+    {{- include "hof-rds-api.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "hof-rds-api.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Release.Namespace }}
+        {{- with .Values.networkPolicy.ingress.additionalFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.containerPort }}
+  egress:
+    - to:
+        {{- if .Values.networkPolicy.egress.allowDns }}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.networkPolicy.egress.dnsNamespace }}
+        {{- end }}
+        {{- with .Values.networkPolicy.egress.additionalTo }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      ports:
+        {{- toYaml .Values.networkPolicy.egress.ports | nindent 8 }}
+{{- end }}

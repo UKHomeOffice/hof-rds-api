@@ -1,0 +1,18 @@
+suite: Deployment rendering
+templates:
+  - templates/deployment.yaml
+
+tests:
+  - it: should render a Deployment kind
+    asserts:
+      - isKind:
+          of: Deployment
+
+  - it: should set configured image
+    set:
+      image.repository: test/hof-rds-api
+      image.tag: 2.0.1
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: test/hof-rds-api:2.0.1

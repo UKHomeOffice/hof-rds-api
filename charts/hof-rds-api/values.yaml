@@ -1,0 +1,157 @@
+replicaCount: 1
+
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: hof/hof-rds-api
+  tag: latest
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+containerPort: 3001
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3001
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: hof-rds-api.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+env:
+  NODE_ENV: production
+  PORT: "3001"
+  SERVICE_NAME: ""
+  LATEST_MIGRATION: ""
+  DELETE_EXPIRED_SCHEDULE: "0 0 * * *"
+  UPDATE_BANK_HOLIDAYS_SCHEDULE: "0 0 1 * *"
+
+envFrom: []
+
+secrets:
+  enabled: false
+  # If set, this overrides the default secret name (<release>-hof-rds-api).
+  name: ""
+  data: {}
+  # Example:
+  # data:
+  #   DB_HOST: "postgres.example"
+  #   DB_USER: "app_user"
+  #   DB_PASS: "app_pass"
+  #   DB_NAME: "app_db"
+
+externalSecret:
+  enabled: false
+  refreshInterval: 1h
+  secretStoreRef:
+    name: ""
+    kind: ClusterSecretStore
+  target:
+    name: ""
+    creationPolicy: Owner
+  data: []
+  # Example:
+  # data:
+  #   - secretKey: DB_HOST
+  #     remoteRef:
+  #       key: /prod/hof-rds-api
+  #       property: db_host
+  #   - secretKey: DB_USER
+  #     remoteRef:
+  #       key: /prod/hof-rds-api
+  #       property: db_user
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+networkPolicy:
+  enabled: false
+  ingress:
+    additionalFrom: []
+  egress:
+    allowDns: true
+    dnsNamespace: kube-system
+    additionalTo: []
+    ports:
+      - protocol: TCP
+        port: 5432
+
+serviceMonitor:
+  enabled: false
+  namespace: ""
+  labels: {}
+  interval: 30s
+  scrapeTimeout: 10s
+  path: /
+  scheme: http
+
+
+configMap:
+  enabled: false
+  data: {}
+
+livenessProbe:
+  enabled: false
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 15
+  periodSeconds: 20
+
+readinessProbe:
+  enabled: false
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
