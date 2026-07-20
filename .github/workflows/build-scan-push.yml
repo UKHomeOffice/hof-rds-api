@@ -27,5 +27,5 @@ jobs:
         secrets:
             AWS_ECR_ACCOUNT_ID: ${{ secrets.AWS_ECR_ACCOUNT_ID }}
             ROLE_TO_ASSUME: ${{ secrets.ROLE_TO_ASSUME }}
-            # EXEMPTIONS_APP_ID: ${{ secrets.EXEMPTIONS_APP_ID }}
-            # EXEMPTIONS_APP_PRIVATE_KEY: ${{ secrets.EXEMPTIONS_APP_PRIVATE_KEY }}
+            EXEMPTIONS_APP_ID: ${{ secrets.EXEMPTIONS_APP_ID }}
+            EXEMPTIONS_APP_PRIVATE_KEY: ${{ secrets.EXEMPTIONS_APP_PRIVATE_KEY }}
