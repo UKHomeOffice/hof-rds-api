@@ -1,0 +1,30 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    versioning-strategy: increase
+    schedule:
+      interval: weekly
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/London"
+    target-branch: "master"
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    commit-message:
+      prefix: deps
+    pull-request-branch-name:
+      separator: "-"
+    rebase-strategy: auto
+    groups:
+      hof-dependency:
+        applies-to: version-updates
+        patterns:
+          - "hof"
+      patch-and-minor:
+        update-types:
+          - patch
+          - minor
+        exclude-patterns:
+          - "hof"
