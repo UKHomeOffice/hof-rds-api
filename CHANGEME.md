@@ -4,12 +4,11 @@ All notable changes to hof-rds-api chart and deployment workflows are documented
 
 The format follows Keep a Changelog and Semantic Versioning.
 
+
 ## [1.0.1] - 2026-07-20
 
 ### Added
 
-- Added GitHub Actions workflow to validate ArgoCD-style Helm rendering against hof-deploy values:
-	- .github/workflows/argocd-values-render-validate.yml
 - Added Helm chart unit tests for ExternalSecret behavior:
 	- charts/hof-rds-api/tests/externalsecret_test.yaml
 
@@ -35,8 +34,3 @@ The format follows Keep a Changelog and Semantic Versioning.
 	- paf
 - Successfully rendered Helm templates with notprod ephemeral values.
 - Successfully rendered ExternalSecret with target fields omitted, confirming fallback behavior.
-
-### Follow-up
-
-- Keep the cross-repo render-validation workflow enabled for chart changes to catch deployment-value integration issues before merge.
-- If ephemeral ApplicationSet template logic changes in hof-deploy, re-run chart render checks using the same overlay set.
