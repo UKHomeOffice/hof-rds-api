@@ -1,8 +1,12 @@
-FROM quay.io/ukhomeofficedigital/hof-nodejs:20.19.0-alpine3.21@sha256:aad584fa26cb2838739527166c8965d95d0d2d9b88cfd5e3e2d3b8647ae03101
+FROM node:24.18.0-alpine3.24@sha256:4ba75f835bb8802193e4c114572113d4b26f95f6f094f4b5229d2a77773e0afc
+
 USER root
 
-# Update packages as a result of Trivy security vulnerability checks
+# Update package index and upgrade all installed packages
 RUN apk update && apk upgrade --no-cache
+
+# Upgrade npm from the base image to patch vulnerable bundled dependencies
+RUN npm install -g npm@12.0.1 && npm --version
 
 # Setup nodejs group & nodejs user
 RUN addgroup --system nodejs --gid 998 && \
