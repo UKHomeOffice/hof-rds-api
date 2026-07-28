@@ -4,7 +4,7 @@
   "description": "A repo for a backend microservice for hof services to communicate with RDS instances",
   "main": "server.js",
   "engines": {
-    "node": ">=24 <25"
+    "node": ">=24.18.0 <25.0.0"
   },
   "scripts": {
     "start": "node server.js",
@@ -24,8 +24,7 @@
     "test:all": "yarn test:integration && yarn test:unit",
     "test:integration": "nyc _mocha \"test/_integration/**/*.spec.js\"",
     "test:lint": "eslint . --config ./node_modules/eslint-config-hof/default.js",
-    "test:unit": "nyc _mocha \"test/_unit/**/*.spec.js\"",
-    "test:snyk": "snyk config set api=SNYK_TOKEN && snyk test"
+    "test:unit": "nyc _mocha \"test/_unit/**/*.spec.js\""
   },
   "author": "Alex Swann",
   "license": "ISC",
@@ -56,8 +55,8 @@
     "supertest": "^7.2.2"
   },
   "resolutions": {
-    "brace-expansion": "^5.0.8",
-    "serialize-javascript": "^7.0.5"
+    "brace-expansion": "5.0.8",
+    "serialize-javascript": "^7.0.7"
   },
   "mocha": {
     "reporter": "spec",
