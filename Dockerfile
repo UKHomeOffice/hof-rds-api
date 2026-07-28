@@ -5,8 +5,11 @@ USER root
 # Update package index and upgrade all installed packages
 RUN apk update && apk upgrade --no-cache
 
-# Upgrade npm and tar from the base image to patch vulnerable bundled dependencies
-RUN npm install -g npm@12.0.1 tar@latest && npm --version && npm ls -g tar --depth=0
+# Upgrade npm, then patch npm's bundled tar to a fixed version
+RUN npm install -g npm@12.0.1 && \
+    npm explore -g npm -- npm install tar@7.5.21 && \
+    npm --version && \
+    npm explore -g npm -- npm ls tar --depth=0
 
 # Setup nodejs group & nodejs user
 RUN addgroup --system nodejs --gid 998 && \
