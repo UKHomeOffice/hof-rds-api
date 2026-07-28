@@ -5,10 +5,6 @@ USER root
 # Update package index and upgrade all installed packages
 RUN apk update && apk upgrade --no-cache
 
-# Upgrade npm from the base image and patch vulnerable bundled dependencies
-RUN npm install -g npm@latest && \
-    npm --version
-
 # Setup nodejs group & nodejs user
 RUN addgroup --system nodejs --gid 998 && \
     adduser --system nodejs --uid 999 --home /app/ && \
