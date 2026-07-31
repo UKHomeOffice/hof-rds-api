@@ -4,21 +4,14 @@ const config = require('./config');
 const Router = require('./router');
 const DB = require('./db').DatabaseManager;
 const DataRetentionWindowCalculator = require('./lib/data_retention_window_calculator');
+const format = require('./lib/morgan_json_format');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-const json = require('morgan-json');
 const cron = require('node-cron');
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
-
-const format = json({
-  short: ':method :url :status',
-  length: ':res[content-length]',
-  'response-time': ':response-time ms',
-  timestamp: ':date[iso]'
-});
 
 const dbTablesConfig = require(`./services/${config.serviceName}/db_tables_config.json`);
 
