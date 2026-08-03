@@ -1,4 +1,4 @@
-name: Building and scanning Docker images
+name: Building, scanning, and pushing Docker images
 
 on:
     pull_request:
@@ -13,7 +13,7 @@ on:
             - "[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
-    build-scan:
+    build-scan-push:
         permissions:
             contents: read
             id-token: write
@@ -22,8 +22,10 @@ jobs:
             working_directory: "."
             dockerfile: "Dockerfile"
             image_name: "hof/hof-rds-api"
-            image_tag: "${{ github.event_name == 'pull_request' && format('pr-{0}-{1}', github.event.pull_request.number, github.event.pull_request.head.sha) || github.sha }}"
-            tag_latest: true
+            # image_tag: "${{ github.event_name == 'pull_request' && format('pr-{0}-{1}', github.event.pull_request.number, github.event.pull_request.head.sha) || github.sha }}"
+            image_tag: "${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.sha }}"
+            # tag_latest: true
+            tag_latest: ${{ github.event_name != 'pull_request' }}
         secrets:
             AWS_ECR_ACCOUNT_ID: ${{ secrets.AWS_ECR_ACCOUNT_ID }}
             ROLE_TO_ASSUME: ${{ secrets.ROLE_TO_ASSUME }}
