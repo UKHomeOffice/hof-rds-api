@@ -3,7 +3,7 @@ name: Building and scanning Yarn Package
 on:
     pull_request:
         branches:
-            - master
+            - main
     push:
         branches:
             - CCL-*
