@@ -23,7 +23,7 @@ jobs:
             dockerfile: "Dockerfile"
             image_name: "hof/hof-rds-api"
             # image_tag: "${{ github.event_name == 'pull_request' && format('pr-{0}-{1}', github.event.pull_request.number, github.event.pull_request.head.sha) || github.sha }}"
-            image_tag: "${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.sha }}"
+            image_tag: "${{ github.event_name == 'pull_request' && format('pr-{0}-{1}', github.event.pull_request.number, github.event.pull_request.head.sha) || (startsWith(github.ref, 'refs/tags/') && github.ref_name) || github.sha }}"
             # tag_latest: true
             tag_latest: ${{ github.event_name != 'pull_request' }}
         secrets:
