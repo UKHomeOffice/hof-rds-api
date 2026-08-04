@@ -71,13 +71,57 @@ yarn db:local:migrate
 ### Dependencies <a name="dependencies"></a>
 You will need to have the following installed:
 
-[Node JS](https://nodejs.org/en/download/releases/) ( LTS Hydrogen v18.x or greater )
+[Node JS](https://nodejs.org/en/download/releases/) ( v24.x; this repo currently uses 24.18.0+ )
 
-[NPM](https://www.npmjs.com/get-npm) ( v8.x )
+[NPM](https://www.npmjs.com/get-npm) ( bundled with Node v24.x )
 
 [Yarn](https://yarnpkg.com) (v1.x)
 
 [PostgreSQL](https://www.postgresql.org/download/) ( v12.x )
+
+[Docker Desktop](https://www.docker.com/products/docker-desktop/) (required for local image build and Trivy image scan)
+
+[Trivy](https://trivy.dev/latest/getting-started/installation/) (for local container vulnerability scanning)
+
+### Local tool setup (macOS)
+
+Install Node.js via `nvm`:
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+nvm install 24.19.0
+nvm use 24.19.0
+```
+
+Enable Yarn Classic:
+
+```bash
+corepack enable
+corepack prepare yarn@1.22.22 --activate
+yarn -v
+```
+
+Install project dependencies (npm modules):
+
+```bash
+yarn install
+```
+
+Install Trivy:
+
+```bash
+brew install trivy
+trivy --version
+```
+
+Build and scan local Docker image:
+
+```bash
+docker build -t hof-rds-api:local-scan .
+trivy image --severity HIGH,CRITICAL --ignore-unfixed hof-rds-api:local-scan
+```
 
 ## Running the application
 
