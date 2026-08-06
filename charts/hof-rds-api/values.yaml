@@ -26,7 +26,7 @@ podSecurityContext:
 securityContext:
   allowPrivilegeEscalation: false
   runAsNonRoot: true
-  readOnlyRootFilesystem: true
+  readOnlyRootFilesystem: false
   capabilities:
     drop:
       - ALL
@@ -69,11 +69,13 @@ affinity: {}
 
 env:
   NODE_ENV: production
+  HOME: /tmp
   PORT: "3001"
   SERVICE_NAME: ""
   LATEST_MIGRATION: ""
   DELETE_EXPIRED_SCHEDULE: "0 0 * * *"
   UPDATE_BANK_HOLIDAYS_SCHEDULE: "0 0 1 * *"
+  YARN_CACHE_FOLDER: /tmp/.yarn-cache
 
 envFrom: []
 
