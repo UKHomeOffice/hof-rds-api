@@ -71,7 +71,7 @@ env:
   NODE_ENV: production
   HOME: /tmp
   PORT: "3001"
-  SERVICE_NAME: ""
+  SERVICE_NAME: "asc"
   LATEST_MIGRATION: ""
   DELETE_EXPIRED_SCHEDULE: "0 0 * * *"
   UPDATE_BANK_HOLIDAYS_SCHEDULE: "0 0 1 * *"
