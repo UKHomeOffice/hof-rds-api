@@ -18,6 +18,11 @@ serviceAccount:
 podAnnotations: { argocd-deploy-test: "2026-08-06" }
 podLabels: {}
 
+command:
+  - sh
+  - -c
+  - echo connectivity deferred; sleep infinity
+
 podSecurityContext:
   runAsNonRoot: true
   seccompProfile:
