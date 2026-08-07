@@ -72,7 +72,7 @@ env:
   HOME: /tmp
   PORT: "3001"
   SERVICE_NAME: "asc"
-  LATEST_MIGRATION: ""
+  LATEST_MIGRATION: "123456789"
   DELETE_EXPIRED_SCHEDULE: "0 0 * * *"
   UPDATE_BANK_HOLIDAYS_SCHEDULE: "0 0 1 * *"
   YARN_CACHE_FOLDER: /tmp/.yarn-cache
@@ -80,16 +80,16 @@ env:
 envFrom: []
 
 secrets:
-  enabled: false
+  enabled: true
   # If set, this overrides the default secret name (<release>-hof-rds-api).
   name: ""
-  data: {}
+  # data: {}
   # Example:
-  # data:
-  #   DB_HOST: "postgres.example"
-  #   DB_USER: "app_user"
-  #   DB_PASS: "app_pass"
-  #   DB_NAME: "app_db"
+  data:
+    DB_HOST: "postgres.example"
+    DB_USER: "app_user"
+    DB_PASS: "app_pass"
+    DB_NAME: "app_db"
 
 externalSecret:
   enabled: false
