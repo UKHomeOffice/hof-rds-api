@@ -55,6 +55,12 @@ Then run `yarn run db:local:migrate` to update your local database with the rele
 ## Install & Run <a name="install-and-run"></a>
 The application can be run on your local machine
 
+## Changelog
+
+Release notes are tracked in `CHANGELOG.md`.
+
+When shipping changes, update the `Unreleased` section first and move entries into a dated or versioned section as part of your release process.
+
 ## Creating a migration
 To create a new migration locally, go into the relevant service folder, i.e. `cd ./services/<service_name>`, ensure you have `npm i knex -g` and run:
 ```
