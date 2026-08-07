@@ -1,19 +1,8 @@
-FROM node:24.18.0-alpine3.24@sha256:4ba75f835bb8802193e4c114572113d4b26f95f6f094f4b5229d2a77773e0afc
-
+FROM quay.io/ukhomeofficedigital/hof-nodejs:24.19.0-alpine3.24@sha256:a70b2f29d55a9aebcf89690e7f64f4889725dab87a3b22663d102ca17c5f888e
 USER root
 
 # Update package index and upgrade all installed packages
 RUN apk upgrade --no-cache
-
-# Upgrade npm from the base image, then patch npm's bundled dependency tree
-RUN npm install -g npm@12.0.1 && \
-    npm pack brace-expansion@5.0.8 --pack-destination /tmp && \
-    rm -rf "$(npm root -g)/npm/node_modules/brace-expansion" && \
-    mkdir -p "$(npm root -g)/npm/node_modules/brace-expansion" && \
-    tar -xzf /tmp/brace-expansion-5.0.8.tgz -C "$(npm root -g)/npm/node_modules/brace-expansion" --strip-components=1 && \
-    rm /tmp/brace-expansion-5.0.8.tgz && \
-    npm --version && \
-    node -p "require('$(npm root -g)/npm/node_modules/brace-expansion/package.json').version"
 
 # Setup nodejs group & nodejs user
 RUN addgroup --system nodejs --gid 998 && \
