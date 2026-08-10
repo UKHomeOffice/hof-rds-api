@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "hof-rds-api.fullname" . }}
+  name: {{ include "hof-rds-api.serviceName" . }}
   labels:
     {{- include "hof-rds-api.labels" . | nindent 4 }}
 spec:
@@ -10,6 +10,6 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.targetPort }}
       protocol: TCP
-      name: http
+      name: {{ .Values.service.portName | default "http" }}
   selector:
     {{- include "hof-rds-api.selectorLabels" . | nindent 4 }}

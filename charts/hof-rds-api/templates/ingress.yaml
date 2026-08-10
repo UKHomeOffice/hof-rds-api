@@ -23,7 +23,7 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ include "hof-rds-api.fullname" $ }}
+                name: {{ include "hof-rds-api.serviceName" $ }}
                 port:
                   number: {{ $.Values.service.port }}
           {{- end }}

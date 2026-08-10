@@ -7,32 +7,19 @@ metadata:
     {{- include "hof-rds-api.labels" . | nindent 4 }}
 spec:
   podSelector:
+    {{- if .Values.networkPolicy.podSelectorLabels }}
+    matchLabels:
+      {{- toYaml .Values.networkPolicy.podSelectorLabels | nindent 6 }}
+    {{- else }}
     matchLabels:
       {{- include "hof-rds-api.selectorLabels" . | nindent 6 }}
+    {{- end }}
   policyTypes:
-    - Ingress
-    - Egress
+    {{- toYaml (.Values.networkPolicy.policyTypes | default (list "Ingress")) | nindent 4 }}
   ingress:
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: {{ .Release.Namespace }}
-        {{- with .Values.networkPolicy.ingress.additionalFrom }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
-      ports:
-        - protocol: TCP
-          port: {{ .Values.containerPort }}
+    {{- toYaml .Values.networkPolicy.ingress | nindent 4 }}
+  {{- if .Values.networkPolicy.egress }}
   egress:
-    - to:
-        {{- if .Values.networkPolicy.egress.allowDns }}
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: {{ .Values.networkPolicy.egress.dnsNamespace }}
-        {{- end }}
-        {{- with .Values.networkPolicy.egress.additionalTo }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
-      ports:
-        {{- toYaml .Values.networkPolicy.egress.ports | nindent 8 }}
+    {{- toYaml .Values.networkPolicy.egress | nindent 4 }}
+  {{- end }}
 {{- end }}

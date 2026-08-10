@@ -1,164 +1,201 @@
 replicaCount: 1
 
+# Bootstrap deployment defaults:
+# - Ingress stays disabled until pod health is verified.
+# - DB env vars are read from the asc-rds secret.
+# - Use real values for an isolated DB environment.
+
+# Branch deploy defaults.
+# Replace `my-branch` with your branch slug (lowercase, '/' -> '-').
 nameOverride: ""
-fullnameOverride: ""
+fullnameOverride: "data-service-my-branch"
+
+commonLabels: {}
 
 image:
-  repository: hof/hof-rds-api
-  tag: latest
-  pullPolicy: IfNotPresent
+  repository: quay.io/ukhomeofficedigital/hof-rds-api
+  tag: "3.1.0@sha256:e73edb96b62bc5dbce4e56b49ac41e7b7bf2e601fb7b0b71dbd19251c8a8e317"
+  pullPolicy: Always
+
+containerName: data-service
 
 imagePullSecrets: []
 
+selectorLabels:
+  name: data-service-my-branch
+  service: data-service-my-branch
+
 serviceAccount:
-  create: true
+  create: false
   annotations: {}
   name: ""
 
-podAnnotations: { argocd-deploy-test: "2026-08-06" }
+podAnnotations: {}
 podLabels: {}
 
-command:
-  - sh
-  - -c
-  - echo connectivity deferred; sleep infinity
+command: []
 
 podSecurityContext:
-  runAsNonRoot: true
-  seccompProfile:
-    type: RuntimeDefault
+  {}
 
 securityContext:
-  allowPrivilegeEscalation: false
   runAsNonRoot: true
-  readOnlyRootFilesystem: false
-  capabilities:
-    drop:
-      - ALL
+  allowPrivilegeEscalation: false
 
-containerPort: 3001
+containerPort: 3443
+
+extraVolumeMounts: []
+
+extraVolumes: []
 
 service:
+  name: dataservice-my-branch
   type: ClusterIP
-  port: 80
-  targetPort: 3001
+  port: 10443
+  targetPort: 3443
+  portName: https
 
 ingress:
   enabled: false
-  className: ""
-  annotations: {}
-  hosts:
-    - host: hof-rds-api.local
-      paths:
-        - path: /
-          pathType: Prefix
-  tls: []
+  # Keep disabled for initial validation.
+  # className: nginx-external
+  # annotations: {}
+  # hosts:
+  #   - host: data-service-my-branch.asc-branch.homeoffice.gov.uk
+  #     paths:
+  #       - path: /
+  #         pathType: Prefix
+  # tls:
+  #   - hosts:
+  #       - data-service-my-branch.asc-branch.homeoffice.gov.uk
+  #     secretName: branch-tls-external
 
 resources:
   requests:
-    cpu: 50m
-    memory: 128Mi
+    cpu: 20m
+    memory: 20Mi
   limits:
-    cpu: 250m
+    cpu: 300m
     memory: 256Mi
 
 autoscaling:
   enabled: false
-  minReplicas: 1
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 80
+  # minReplicas: 1
+  # maxReplicas: 3
+  # targetCPUUtilizationPercentage: 80
 
 nodeSelector: {}
 tolerations: []
 affinity: {}
 
-env:
-  NODE_ENV: production
-  HOME: /tmp
-  PORT: "3001"
-  SERVICE_NAME: "asc"
-  LATEST_MIGRATION: "123456789"
-  DELETE_EXPIRED_SCHEDULE: "0 0 * * *"
-  UPDATE_BANK_HOLIDAYS_SCHEDULE: "0 0 1 * *"
-  YARN_CACHE_FOLDER: /tmp/.yarn-cache
+defaultEnv:
+  - name: SERVICE_NAME
+    value: asc
+  - name: LATEST_MIGRATION
+    value: "20230818160728_add_job_role_column_sa"
+  # Required secret in target namespace: asc-rds
+  # Required keys: endpoint, db_name, username, password
+  - name: DB_HOST
+    valueFrom:
+      secretKeyRef:
+        name: asc-rds
+        key: endpoint
+  - name: DB_NAME
+    valueFrom:
+      secretKeyRef:
+        name: asc-rds
+        key: db_name
+  - name: DB_USER
+    valueFrom:
+      secretKeyRef:
+        name: asc-rds
+        key: username
+  - name: DB_PASS
+    valueFrom:
+      secretKeyRef:
+        name: asc-rds
+        key: password
+
+# Optional env overrides. Supports either:
+# 1) a list of {name, value}/{name, valueFrom}, or
+# 2) a key/value map for simple string env vars.
+env: null
 
 envFrom: []
-
-secrets:
-  enabled: true
-  # If set, this overrides the default secret name (<release>-hof-rds-api).
-  name: ""
-  # data: {}
-  # Example:
-  data:
-    DB_HOST: "postgres.example"
-    DB_USER: "app_user"
-    DB_PASS: "app_pass"
-    DB_NAME: "app_db"
-
-externalSecret:
-  enabled: false
-  refreshInterval: 1h
-  secretStoreRef:
-    name: ""
-    kind: ClusterSecretStore
-  target:
-    name: ""
-    creationPolicy: Owner
-  data: []
-  # Example:
-  # data:
-  #   - secretKey: DB_HOST
-  #     remoteRef:
-  #       key: /prod/hof-rds-api
-  #       property: db_host
-  #   - secretKey: DB_USER
-  #     remoteRef:
-  #       key: /prod/hof-rds-api
-  #       property: db_user
-
-podDisruptionBudget:
-  enabled: false
-  minAvailable: 1
-
-networkPolicy:
-  enabled: false
-  ingress:
-    additionalFrom: []
-  egress:
-    allowDns: true
-    dnsNamespace: kube-system
-    additionalTo: []
-    ports:
-      - protocol: TCP
-        port: 5432
-
-serviceMonitor:
-  enabled: false
-  namespace: ""
-  labels: {}
-  interval: 30s
-  scrapeTimeout: 10s
-  path: /
-  scheme: http
-
+# Optional:
+# envFrom:
+#   - configMapRef:
+#       name: configmap-my-branch
 
 configMap:
   enabled: false
-  data: {}
+  # name: configmap-my-branch
+  # data: {}
+
+secrets:
+  enabled: false
+  # name: ""
+  # data:
+  #   DB_HOST: "postgres.example"
+  #   DB_USER: "app_user"
+  #   DB_PASS: "app_pass"
+  #   DB_NAME: "app_db"
+
+externalSecret:
+  enabled: false
+  # refreshInterval: 1h
+  # secretStoreRef:
+  #   name: aws-secretstore
+  #   kind: SecretStore
+  # target:
+  #   name: ""
+  #   creationPolicy: Owner
+  # data:
+  #   - secretKey: DB_HOST
+  #     remoteRef:
+  #       key: hof-rds-api-asc
+  #       property: db_host
+  #   - secretKey: DB_USER
+  #     remoteRef:
+  #       key: hof-rds-api-asc
+  #       property: db_user
+  #   - secretKey: DB_PASS
+  #     remoteRef:
+  #       key: hof-rds-api-asc
+  #       property: db_pass
+  #   - secretKey: DB_NAME
+  #     remoteRef:
+  #       key: hof-rds-api-asc
+  #       property: db_name
+
+networkPolicy:
+  enabled: false
+  # podSelectorLabels:
+  #   name: data-service-my-branch
+  # policyTypes:
+  #   - Ingress
+  # ingress:
+  #   - from:
+  #       - podSelector:
+  #           matchLabels:
+  #             name: additional-security-checks-my-branch
+  #     ports:
+  #       - protocol: TCP
+  #         port: 3443
+  # egress: []
 
 livenessProbe:
   enabled: false
-  httpGet:
-    path: /
-    port: http
-  initialDelaySeconds: 15
-  periodSeconds: 20
+  # httpGet:
+  #   path: /
+  #   port: http
+  # initialDelaySeconds: 15
+  # periodSeconds: 20
 
 readinessProbe:
   enabled: false
-  httpGet:
-    path: /
-    port: http
-  initialDelaySeconds: 10
-  periodSeconds: 10
+  # httpGet:
+  #   path: /
+  #   port: http
+  # initialDelaySeconds: 10
+  # periodSeconds: 10

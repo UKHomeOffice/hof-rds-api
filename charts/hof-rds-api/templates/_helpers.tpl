@@ -25,11 +25,34 @@ app.kubernetes.io/name: {{ include "hof-rds-api.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- with .Values.commonLabels }}
+{{ toYaml . }}
+{{- end }}
 {{- end -}}
 
 {{- define "hof-rds-api.selectorLabels" -}}
+{{- if .Values.selectorLabels }}
+{{- toYaml .Values.selectorLabels -}}
+{{- else }}
 app.kubernetes.io/name: {{ include "hof-rds-api.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+{{- end -}}
+
+{{- define "hof-rds-api.serviceName" -}}
+{{- if .Values.service.name -}}
+{{- .Values.service.name -}}
+{{- else -}}
+{{- include "hof-rds-api.fullname" . -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "hof-rds-api.configMapName" -}}
+{{- if .Values.configMap.name -}}
+{{- .Values.configMap.name -}}
+{{- else -}}
+{{- include "hof-rds-api.fullname" . -}}
+{{- end -}}
 {{- end -}}
 
 {{- define "hof-rds-api.serviceAccountName" -}}

@@ -2,11 +2,15 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "hof-rds-api.fullname" . }}
+  name: {{ include "hof-rds-api.configMapName" . }}
   labels:
     {{- include "hof-rds-api.labels" . | nindent 4 }}
 data:
+  {{- if .Values.configMap.data }}
   {{- range $key, $value := .Values.configMap.data }}
   {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- else }}
+  PLACEHOLDER: "true"
   {{- end }}
 {{- end }}
