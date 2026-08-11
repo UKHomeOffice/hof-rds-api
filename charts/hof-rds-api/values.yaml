@@ -1,14 +1,9 @@
 replicaCount: 1
 
-# Bootstrap deployment defaults:
-# - Ingress stays disabled until pod health is verified.
-# - DB env vars are read from the asc-rds secret.
-# - Use real values for an isolated DB environment.
-
-# Branch deploy defaults.
-# Replace `my-branch` with your branch slug (lowercase, '/' -> '-').
+# Base chart defaults only.
+# Pass environment-specific values from hof-deploy overlays.
 nameOverride: ""
-fullnameOverride: "data-service-my-branch"
+fullnameOverride: ""
 
 commonLabels: {}
 
@@ -17,13 +12,11 @@ image:
   tag: "3.1.0@sha256:e73edb96b62bc5dbce4e56b49ac41e7b7bf2e601fb7b0b71dbd19251c8a8e317"
   pullPolicy: Always
 
-containerName: data-service
+containerName: hof-rds-api
 
 imagePullSecrets: []
 
-selectorLabels:
-  name: data-service-my-branch
-  service: data-service-my-branch
+selectorLabels: {}
 
 serviceAccount:
   create: false
@@ -33,7 +26,9 @@ serviceAccount:
 podAnnotations: {}
 podLabels: {}
 
-command: []
+# Optional container command override.
+# Keep null to use the image default CMD/ENTRYPOINT.
+command: null
 
 podSecurityContext:
   {}
@@ -49,7 +44,7 @@ extraVolumeMounts: []
 extraVolumes: []
 
 service:
-  name: dataservice-my-branch
+  name: ""
   type: ClusterIP
   port: 10443
   targetPort: 3443
@@ -88,13 +83,12 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 
+# Example:
 defaultEnv:
   - name: SERVICE_NAME
     value: asc
   - name: LATEST_MIGRATION
     value: "20230818160728_add_job_role_column_sa"
-  # Required secret in target namespace: asc-rds
-  # Required keys: endpoint, db_name, username, password
   - name: DB_HOST
     valueFrom:
       secretKeyRef:
