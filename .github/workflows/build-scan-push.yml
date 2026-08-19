@@ -43,7 +43,7 @@ jobs:
             working_directory: "."
             dockerfile: "Dockerfile"
             image_name: "hof/hof-rds-api"
-            image_tag: "${{ github.sha }}"
+            image_tag: "${{ github.ref_name }}"
             tag_latest: false
         secrets:
             AWS_ECR_ACCOUNT_ID: ${{ secrets.HOFPROD_AWS_ECR_ACCOUNT_ID }}
