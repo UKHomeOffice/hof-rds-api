@@ -50,5 +50,5 @@ jobs:
       validate_version_tag: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') || github.event_name != 'push' && inputs.validate_version_tag }}
       create_repository: false
     secrets:
-      ecr_account_id: ${{ secrets.AWS_ECR_ACCOUNT_ID }}
+      ecr_account_id: ${{ secrets.HOFNOTPROD_AWS_ECR_ACCOUNT_ID }}
       
