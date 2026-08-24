@@ -16,7 +16,7 @@ jobs:
     # Temporarily disabled actual HOF RDS API image jobs while CVE fixes are in progress.
     # TODO: Re-enable the real HOF RDS API image jobs once CVEs are remediated.
     build-scan-hofnotprod:
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
         permissions:
             contents: read
             id-token: write
