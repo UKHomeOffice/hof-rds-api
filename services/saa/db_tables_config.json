@@ -1,0 +1,9 @@
+[
+  {
+    "tableName": "submitted_applications",
+    "modelName": "postgres-model",
+    "selectableProps": ["*"],
+    "dataRetentionPeriodType": "calendar",
+    "dataRetentionInDays": "7"
+  }
+]
