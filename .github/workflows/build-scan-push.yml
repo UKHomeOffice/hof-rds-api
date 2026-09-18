@@ -1,4 +1,4 @@
-name: Building, scanning, and pushing Docker images
+name: Building and scanning Docker images
 
 on:
     pull_request:
@@ -8,15 +8,11 @@ on:
         branches:
             - main
             - CCL-*
-        tags:
-            - "v*"
-            - "[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
-    # Temporarily disabled actual HOF RDS API image jobs while CVE fixes are in progress.
-    # TODO: Re-enable the real HOF RDS API image jobs once CVEs are remediated.
+   
     build-scan-hofnotprod:
-        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        if: github.event_name == 'pull_request'
         permissions:
             contents: read
             id-token: write
@@ -25,8 +21,8 @@ jobs:
             working_directory: "."
             dockerfile: "Dockerfile"
             image_name: "hof/hof-rds-api"
-            image_tag: "${{ github.event_name == 'pull_request' && format('pr-{0}-{1}', github.event.pull_request.number, github.event.pull_request.head.sha) || (startsWith(github.ref, 'refs/tags/') && github.ref_name) || github.sha }}"
-            tag_latest: ${{ github.event_name != 'pull_request' }}
+            image_tag: "${{ format('pr-{0}-{1}', github.event.pull_request.number, github.event.pull_request.head.sha) }}"
+            tag_latest: false
         secrets:
             AWS_ECR_ACCOUNT_ID: ${{ secrets.HOFNOTPROD_AWS_ECR_ACCOUNT_ID }}
             ROLE_TO_ASSUME: ${{ secrets.HOFNOTPROD_ROLE_TO_ASSUME }}
@@ -34,7 +30,7 @@ jobs:
             EXEMPTIONS_APP_PRIVATE_KEY: ${{ secrets.EXEMPTIONS_APP_PRIVATE_KEY }}
 
     build-scan-hofprod:
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         permissions:
             contents: read
             id-token: write
@@ -43,7 +39,7 @@ jobs:
             working_directory: "."
             dockerfile: "Dockerfile"
             image_name: "hof/hof-rds-api"
-            image_tag: "${{ github.ref_name }}"
+            image_tag: "${{ github.sha }}"
             tag_latest: false
         secrets:
             AWS_ECR_ACCOUNT_ID: ${{ secrets.HOFPROD_AWS_ECR_ACCOUNT_ID }}
