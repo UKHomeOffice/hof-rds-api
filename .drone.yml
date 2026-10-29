@@ -9,7 +9,7 @@ environment:
 
 node_image: &node_image
   pull: if-not-exists
-  image: quay.io/ukhomeofficedigital/hof-nodejs:24.21.0-alpine3.24@sha256:80b294ce5027fdc87c58cc990f4d9804323a1734c1e8a1ae9d6bbe569fa8b01e
+  image: quay.io/ukhomeofficedigital/hof-nodejs:24.22.1_1-alpine@sha256:033927ee2316f3b3c7d22f3560c2e4201c4c751b7cb4664d0d9b9c28783d9473
 
 trigger:
   branch:
@@ -40,7 +40,7 @@ steps:
         cpu: 1000
         memory: 1024Mi
     environment:
-      IMAGE_NAME: quay.io/ukhomeofficedigital/hof-nodejs:24.21.0-alpine3.24@sha256:80b294ce5027fdc87c58cc990f4d9804323a1734c1e8a1ae9d6bbe569fa8b01e
+      IMAGE_NAME: quay.io/ukhomeofficedigital/hof-nodejs:24.22.1_1-alpine@sha256:033927ee2316f3b3c7d22f3560c2e4201c4c751b7cb4664d0d9b9c28783d9473
       SERVICE_URL: https://acp-trivy-helm.acp-trivy.svc.cluster.local:443
       SEVERITY: MEDIUM,HIGH,CRITICAL  --vuln-type os,library --dependency-tree
       FAIL_ON_DETECTION: true
@@ -181,7 +181,7 @@ steps:
     image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/trivy/client:latest
     pull: always
     environment:
-        IMAGE_NAME: quay.io/ukhomeofficedigital/hof-nodejs:24.21.0-alpine3.24@sha256:80b294ce5027fdc87c58cc990f4d9804323a1734c1e8a1ae9d6bbe569fa8b01e
+        IMAGE_NAME: quay.io/ukhomeofficedigital/hof-nodejs:24.22.1_1-alpine@sha256:033927ee2316f3b3c7d22f3560c2e4201c4c751b7cb4664d0d9b9c28783d9473
         SEVERITY: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL --vuln-type os,library --dependency-tree
         FAIL_ON_DETECTION: true
         IGNORE_UNFIXED: false
