@@ -1,5 +1,10 @@
 // Update with your config settings.
 const config = require('./config');
+const { types } = require('pg');
+
+// Return DATE columns as 'YYYY-MM-DD' strings rather than JS Dates to avoid timezone shifts
+const PG_DATE_OID = 1082;
+types.setTypeParser(PG_DATE_OID, value => value);
 
 const testConfig = {
   client: 'postgresql',

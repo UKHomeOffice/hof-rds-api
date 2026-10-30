@@ -1,9 +1,24 @@
 [
   {
-    "tableName": "submitted_applications",
+    "tableName": "applications",
     "modelName": "postgres-model",
+    "additionalGetResources": ["email", "uan"],
     "selectableProps": ["*"],
-    "dataRetentionPeriodType": "calendar",
-    "dataRetentionInDays": "7"
+    "customCronJobs": [
+      {
+        "tableName": "applications",
+        "dataRetentionPeriodType": "calendar",
+        "dataRetentionInDays": "7",
+        "dataRetentionFilter": "unsubmitted",
+        "dataRetentionDateType": "created_at"
+      },
+      {
+        "tableName": "applications",
+        "dataRetentionPeriodType": "calendar",
+        "dataRetentionInDays": "90",
+        "dataRetentionFilter": "submitted",
+        "dataRetentionDateType": "submitted_at"
+      }
+    ]
   }
 ]
